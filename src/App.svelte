@@ -199,7 +199,7 @@
   }
 
   function drawChart(fStarVal, fInflectionVal, outcomes, normProbs, Q, w) {
-    if (typeof Plotly === 'undefined') return;
+    if (typeof Plotly === 'undefined' || !document.getElementById('plotly-chart')) return;
     
     const f_vals = [];
     const r_exact = [];

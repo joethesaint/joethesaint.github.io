@@ -9,6 +9,18 @@
   let isLightTheme = false;
   let currentPage = 'home';
 
+  // Toast notifications state
+  let toast = { show: false, message: '', type: 'success' };
+  let toastTimeout;
+  
+  function showToast(message, type = 'success') {
+    if (toastTimeout) clearTimeout(toastTimeout);
+    toast = { show: true, message, type };
+    toastTimeout = setTimeout(() => {
+      toast = { ...toast, show: false };
+    }, 4000);
+  }
+
   function navigate(page) {
     currentPage = page;
     window.scrollTo(0, 0);
@@ -37,6 +49,26 @@
   let outcomesInput = '2.0, -1.0';
   let probsInput = '0.5, 0.5';
   let horizonInput = '50';
+
+  function applyPreset(presetType) {
+    if (presetType === 'coin-flip') {
+      outcomesInput = '2.0, -1.0';
+      probsInput = '0.5, 0.5';
+      horizonInput = '50';
+      showToast('Loaded Coin Flip Scenario (2:1 payoff)');
+    } else if (presetType === 'crypto') {
+      outcomesInput = '10.0, -1.0';
+      probsInput = '0.15, 0.85';
+      horizonInput = '20';
+      showToast('Loaded Aggressive Crypto Options Scenario');
+    } else if (presetType === 'equities') {
+      outcomesInput = '0.25, -0.15';
+      probsInput = '0.65, 0.35';
+      horizonInput = '100';
+      showToast('Loaded Conservative Equities Scenario');
+    }
+    runCalculation();
+  }
   
   let calcResults = {
     error: '',
@@ -222,13 +254,14 @@
       r_approx.push(Math.exp(Q * sumApproxLog));
     }
     
+    const activeGreen = isLightTheme ? '#00b359' : '#00e676';
     const trace1 = {
       x: f_vals,
       y: r_exact,
       name: 'Exact Return r_Q(f)',
       type: 'scatter',
       mode: 'lines',
-      line: { color: '#00e676', width: 2.5 }
+      line: { color: activeGreen, width: 2.5 }
     };
     
     const trace2 = {
@@ -237,7 +270,7 @@
       name: 'Approximated Return',
       type: 'scatter',
       mode: 'lines',
-      line: { color: '#8e8e9c', width: 1.5, dash: 'dash' }
+      line: { color: isLightTheme ? '#5e5e6e' : '#8e8e9c', width: 1.5, dash: 'dash' }
     };
     
     const layout = {
@@ -277,7 +310,7 @@
         x1: fStarVal,
         y1: Math.max(...r_exact) * 1.05,
         line: {
-          color: '#ff5252',
+          color: isLightTheme ? '#d32f2f' : '#ff5252',
           width: 1.5,
           dash: 'dot'
         }
@@ -293,7 +326,7 @@
         x1: fInflectionVal,
         y1: Math.max(...r_exact) * 1.05,
         line: {
-          color: '#29b6f6',
+          color: isLightTheme ? '#0288d1' : '#29b6f6',
           width: 1.5,
           dash: 'dot'
         }
@@ -369,6 +402,7 @@
 <!-- Main Wrapper -->
 <main class="container">
   {#if currentPage === 'home'}
+  <div class="page-fade-in">
   
   <!-- Hero / Summary Section -->
   <section id="summary" class="hero-section" style="position: relative; overflow: hidden;">
@@ -672,15 +706,17 @@
       <h2 class="section-title" style="justify-content: center;">Send a Message</h2>
     </div>
     
-    <form class="contact-form" on:submit|preventDefault={() => alert('Message mock-sent successfully!')}>
+    <form class="contact-form" on:submit|preventDefault={() => showToast('Message transmitted successfully! Thanks for reaching out.')}>
       <input type="text" placeholder="Your Name" class="form-input" required />
       <input type="email" placeholder="Your Email Address" class="form-input" required />
       <textarea placeholder="Your Message" rows="5" class="form-input" style="resize: vertical;" required></textarea>
       <button type="submit" class="btn btn-primary">Transmit Message</button>
     </form>
   </section>
+  </div>
 
   {:else if currentPage === 'case-study'}
+  <div class="page-fade-in">
     <!-- Detailed Case Study / Interactive Sandbox Page -->
     <section id="case-study-page" style="padding-top: 40px; padding-bottom: 80px;">
       <div style="margin-bottom: 2rem;">
@@ -718,6 +754,14 @@
         <!-- Live Sandbox Sub-Widget -->
         <h3 style="font-size: 1.25rem; color: var(--accent-green); margin-bottom: 1.25rem; font-family: var(--font-mono)">[INTERACTIVE_SANDBOX_SOLVER]</h3>
         
+        <!-- Preset Controls -->
+        <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; align-items: center;">
+          <span style="font-size: 0.8rem; color: var(--text-muted); font-family: var(--font-mono);">Presets:</span>
+          <button class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 3px;" on:click={() => applyPreset('coin-flip')}>[COIN_FLIP_2:1]</button>
+          <button class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 3px;" on:click={() => applyPreset('crypto')}>[CRYPTO_OPTIONS]</button>
+          <button class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 3px;" on:click={() => applyPreset('equities')}>[CONSERVATIVE_EQUITIES]</button>
+        </div>
+
         <div class="grid-2" style="background-color: var(--bg-primary); border: 1.5px solid var(--card-border); border-radius: 6px; padding: 1.75rem; gap: 2rem; margin-bottom: 2rem;">
           <div class="calc-container">
             <div class="calc-row" style="display: flex; gap: 1rem; margin-bottom: 1.25rem;">
@@ -765,7 +809,9 @@
         </div>
       </article>
     </section>
+  </div>
   {:else if currentPage === 'projects'}
+  <div class="page-fade-in">
     <!-- Detailed All Projects Page -->
     <section id="all-projects-page" style="padding-top: 40px; padding-bottom: 80px;">
       <div style="margin-bottom: 2rem;">
@@ -808,8 +854,15 @@
         </div>
       </div>
     </section>
+  </div>
   {/if}
 </main>
+
+<!-- Toast Notification DOM -->
+<div class="toast-notification" class:show={toast.show}>
+  <span class="toast-icon">&gt;</span>
+  <span>{toast.message}</span>
+</div>
 
 <!-- Footer -->
 <footer>

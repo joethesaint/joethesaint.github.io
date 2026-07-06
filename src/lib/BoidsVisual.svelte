@@ -11,6 +11,10 @@
   let animationFrameId;
   let boidMaterial;
 
+  let mouse = new THREE.Vector2();
+  let mouseActive = false;
+  const raycaster = new THREE.Raycaster();
+
   // Boids parameters (reduced count slightly for low-spec device friendliness while maintaining density)
   const BOID_COUNT = 80; 
   const BOUNDS = 85;
@@ -77,6 +81,19 @@
 
     applyForce(force) {
       this.acceleration.add(force);
+    }
+
+    interactWithPoint(target) {
+      const dSq = this.position.distanceToSquared(target);
+      if (dSq < 32 * 32 && dSq > 0) {
+        tempDiff.subVectors(this.position, target);
+        const d = Math.sqrt(dSq);
+        tempDiff.normalize();
+        // Repulsion force: stronger as the cursor gets closer
+        const forceMagnitude = (32 - d) * 0.12;
+        tempDiff.multiplyScalar(forceMagnitude);
+        this.applyForce(tempDiff);
+      }
     }
 
     wrapBoundaries() {
@@ -166,6 +183,18 @@
     }
   });
 
+  function handlePointerMove(e) {
+    if (!container) return;
+    const rect = container.getBoundingClientRect();
+    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    mouseActive = true;
+  }
+
+  function handlePointerLeave() {
+    mouseActive = false;
+  }
+
   onMount(() => {
     scene = new THREE.Scene();
     
@@ -203,6 +232,8 @@
       renderer.setSize(w, h);
     };
     window.addEventListener('resize', handleResize);
+    window.addEventListener('pointermove', handlePointerMove);
+    window.addEventListener('pointerleave', handlePointerLeave);
 
     const animate = () => {
       animationFrameId = requestAnimationFrame(animate);
@@ -211,6 +242,16 @@
       camera.position.x = Math.sin(time) * 85;
       camera.position.z = Math.cos(time) * 85;
       camera.lookAt(scene.position);
+
+      if (mouseActive) {
+        raycaster.setFromCamera(mouse, camera);
+        const targetPoint = new THREE.Vector3();
+        raycaster.ray.at(65, targetPoint); // project pointer coordinate into flocking space
+
+        for (let i = 0; i < boids.length; i++) {
+          boids[i].interactWithPoint(targetPoint);
+        }
+      }
 
       for (let i = 0; i < boids.length; i++) {
         boids[i].flock(boids);
@@ -223,6 +264,8 @@
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('pointermove', handlePointerMove);
+      window.removeEventListener('pointerleave', handlePointerLeave);
       cancelAnimationFrame(animationFrameId);
       boids.forEach(boid => boid.destroy());
       boidMaterial.dispose();

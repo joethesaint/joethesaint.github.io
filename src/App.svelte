@@ -118,7 +118,7 @@
       calcResults.error = '';
       const outcomes = outcomesInput.split(/[\s,\n]+/).map(x => x.trim()).filter(x => x !== '').map(x => parseFloat(x));
       const probs = probsInput.split(/[\s,\n]+/).map(x => x.trim()).filter(x => x !== '').map(x => parseFloat(x));
-      const Q = parseInt(horizonInput.trim(), 10);
+      const Q = typeof horizonInput === 'number' ? horizonInput : parseInt(String(horizonInput).trim(), 10);
       
       if (outcomes.some(isNaN) || probs.some(isNaN) || isNaN(Q)) {
         throw new Error('Please enter valid outcomes, probabilities, and horizon.');
@@ -733,8 +733,11 @@
             
             <div class="calc-row" style="margin-bottom: 1.25rem;">
               <div class="calc-field">
-                <label for="horizon" class="calc-label" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block;">Holding Periods (Q)</label>
-                <input type="number" id="horizon" class="calc-input" style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--card-border); color: var(--text-main); padding: 0.5rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.9rem;" bind:value={horizonInput} on:input={runCalculation} />
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                  <label for="horizon" class="calc-label" style="font-size: 0.8rem; color: var(--text-muted);">Holding Periods (Q)</label>
+                  <span style="font-size: 0.85rem; color: var(--accent-green); font-family: var(--font-mono); font-weight: bold; background: var(--bg-secondary); padding: 0.1rem 0.4rem; border-radius: 3px; border: 1px solid var(--card-border);">{horizonInput}</span>
+                </div>
+                <input type="range" id="horizon" min="1" max="250" step="1" class="calc-input" style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--card-border); color: var(--text-main); height: 6px; padding: 0; border-radius: 4px; cursor: pointer;" bind:value={horizonInput} on:input={runCalculation} />
               </div>
             </div>
 

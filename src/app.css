@@ -660,3 +660,50 @@ footer {
 .footer-meta a:hover {
   color: var(--accent-green);
 }
+
+/* Custom Range Input / Slider Sizing */
+input[type="range"].calc-input {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: 3px;
+  outline: none;
+  padding: 0;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+input[type="range"].calc-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  box-shadow: 0 0 8px var(--accent-green);
+  transition: var(--transition);
+}
+
+input[type="range"].calc-input::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 12px var(--accent-green);
+}
+
+input[type="range"].calc-input::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: none;
+  border-radius: 50%;
+  background: var(--accent-green);
+  box-shadow: 0 0 8px var(--accent-green);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+input[type="range"].calc-input::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 12px var(--accent-green);
+}

@@ -8,6 +8,7 @@
   let activeSection = 'summary';
   let isLightTheme = false;
   let currentPage = 'home';
+  let mobileMenuOpen = false;
 
   // Toast notifications state
   let toast = { show: false, message: '', type: 'success' };
@@ -30,6 +31,7 @@
   }
 
   function handleNavClick(e, sectionId) {
+    mobileMenuOpen = false;
     if (currentPage !== 'home') {
       e.preventDefault();
       currentPage = 'home';
@@ -43,6 +45,10 @@
         }
       }, 100);
     }
+  }
+
+  function toggleMobileMenu() {
+    mobileMenuOpen = !mobileMenuOpen;
   }
   
   // Sizing Calculator Inputs
@@ -383,7 +389,7 @@
         <span>JOSEPH.B()</span>
       </div>
       <div class="nav-controls">
-        <ul class="nav-links">
+        <ul class="nav-links" class:open={mobileMenuOpen}>
           <li><a href="#summary" class:active={activeSection === 'summary' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'summary')}>Info</a></li>
           <li><a href="#experience" class:active={activeSection === 'experience' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'experience')}>Exp</a></li>
           <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>Blog</a></li>
@@ -393,6 +399,11 @@
         </ul>
         <button class="theme-toggle" on:click={toggleTheme}>
           {isLightTheme ? '[DARK_MODE]' : '[LIGHT_MODE]'}
+        </button>
+        <button class="mobile-menu-toggle" class:open={mobileMenuOpen} on:click={toggleMobileMenu} aria-label="Toggle navigation menu" aria-expanded={mobileMenuOpen}>
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
       </div>
     </nav>
@@ -725,10 +736,10 @@
         </button>
       </div>
 
-      <article class="glass-card" style="padding: 3rem; margin-bottom: 2rem;">
+      <article class="glass-card detail-card">
         <header style="position: static; background: none; border-bottom: none; backdrop-filter: none; padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1.5px dashed var(--card-border);">
           <span style="color: var(--accent-green); font-size: 0.85rem; font-weight: bold;">[TECHNICAL_CASE_STUDY] &bull; Q3 2026</span>
-          <h1 style="font-size: 2.2rem; font-weight: 800; margin-top: 0.5rem; line-height: 1.2; color: var(--text-main);">
+          <h1 class="detail-title" style="font-weight: 800; margin-top: 0.5rem; line-height: 1.2; color: var(--text-main);">
             Inflection Point Significance for the Investment Size in Finite Horizons
           </h1>
           <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.5rem; line-height: 1.5;">
@@ -762,7 +773,7 @@
           <button class="btn btn-secondary" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; border-radius: 3px;" on:click={() => applyPreset('equities')}>[CONSERVATIVE_EQUITIES]</button>
         </div>
 
-        <div class="grid-2" style="background-color: var(--bg-primary); border: 1.5px solid var(--card-border); border-radius: 6px; padding: 1.75rem; gap: 2rem; margin-bottom: 2rem;">
+        <div class="grid-2 sandbox-panel" style="background-color: var(--bg-primary); border: 1.5px solid var(--card-border); border-radius: 6px; margin-bottom: 2rem;">
           <div class="calc-container">
             <div class="calc-row" style="display: flex; gap: 1rem; margin-bottom: 1.25rem;">
               <div class="calc-field" style="flex: 1;">
@@ -820,10 +831,10 @@
         </button>
       </div>
 
-      <div class="glass-card" style="padding: 3rem; margin-bottom: 2rem;">
+      <div class="glass-card detail-card">
         <header style="position: static; background: none; border-bottom: none; backdrop-filter: none; padding-bottom: 1.5rem; margin-bottom: 2.5rem; border-bottom: 1.5px dashed var(--card-border);">
           <span style="color: var(--accent-green); font-size: 0.85rem; font-weight: bold;">[ARCHIVE] &bull; INDEX OF PROJECTS</span>
-          <h1 style="font-size: 2.2rem; font-weight: 800; margin-top: 0.5rem; line-height: 1.2; color: var(--text-main);">
+          <h1 class="detail-title" style="font-weight: 800; margin-top: 0.5rem; line-height: 1.2; color: var(--text-main);">
             Complete Codebase Index
           </h1>
           <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.5rem; line-height: 1.5;">

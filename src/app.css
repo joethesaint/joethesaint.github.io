@@ -147,6 +147,42 @@ nav {
   color: var(--accent-green);
 }
 
+/* Mobile hamburger toggle (hidden on desktop) */
+.mobile-menu-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 32px;
+  height: 32px;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 110;
+}
+
+.mobile-menu-toggle span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: var(--text-main);
+  border-radius: 2px;
+  transition: var(--transition);
+}
+
+.mobile-menu-toggle.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.mobile-menu-toggle.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.mobile-menu-toggle.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
 /* Sections */
 section {
   padding: 120px 0 80px 0;
@@ -292,13 +328,13 @@ section {
 /* Cards & Layout Grid */
 .grid-2 {
   display: grid;
-  grid-template-cols: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
   gap: 2.5rem;
 }
 
 .grid-3 {
   display: grid;
-  grid-template-cols: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
 }
 
@@ -331,6 +367,21 @@ section {
 .glass-card:hover {
   border-color: var(--accent-green-glow);
   box-shadow: var(--glow-shadow);
+}
+
+/* Detail sub-pages (case study, all-projects) */
+.detail-card {
+  padding: 3rem;
+  margin-bottom: 2rem;
+}
+
+.detail-title {
+  font-size: 2.2rem;
+}
+
+.sandbox-panel {
+  padding: 1.75rem;
+  gap: 2rem;
 }
 
 /* Timeline & Experience */
@@ -741,6 +792,127 @@ input[type="range"].calc-input::-moz-range-thumb:hover {
 .toast-icon {
   color: var(--accent-green);
   font-weight: bold;
+}
+
+/* Responsive: tablet & mobile */
+@media (max-width: 860px) {
+  .container {
+    padding: 0 18px;
+  }
+
+  nav {
+    height: 64px;
+  }
+
+  .nav-controls {
+    gap: 1rem;
+  }
+
+  .mobile-menu-toggle {
+    display: flex;
+  }
+
+  .nav-links {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    background: var(--bg-primary);
+    border-bottom: 1.5px solid var(--card-border);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.2s ease;
+  }
+
+  .nav-links.open {
+    max-height: 400px;
+    opacity: 1;
+  }
+
+  .nav-links li {
+    width: 100%;
+  }
+
+  .nav-links a {
+    display: block;
+    padding: 1rem 24px;
+    border-bottom: 1px solid var(--card-border);
+  }
+
+  .theme-toggle {
+    font-size: 0.7rem;
+    padding: 0.35rem 0.6rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-title {
+    font-size: 2.1rem;
+  }
+
+  .hero-desc {
+    font-size: 0.95rem;
+  }
+
+  .cta-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cta-group .btn {
+    text-align: center;
+  }
+
+  .profiles-row {
+    gap: 1rem !important;
+  }
+
+  section {
+    padding: 100px 0 60px 0;
+  }
+
+  .section-title {
+    font-size: 1.4rem;
+  }
+
+  .toast-notification {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    max-width: none;
+  }
+
+  .glass-card {
+    padding: 1.25rem;
+  }
+
+  .detail-card {
+    padding: 1.25rem;
+  }
+
+  .detail-title {
+    font-size: 1.5rem;
+  }
+
+  .sandbox-panel {
+    padding: 1rem;
+    gap: 1.25rem;
+  }
+
+  .section-header {
+    margin-bottom: 2rem;
+  }
+
+  .experience-list {
+    gap: 1.75rem;
+  }
+
+  .skills-container {
+    gap: 1.5rem;
+  }
 }
 
 /* Page transitions */

@@ -26,6 +26,11 @@
   let isLightTheme = false;
   let currentPage = 'home';
   let mobileMenuOpen = false;
+  let isMobile = false;
+
+  function handleResize() {
+    isMobile = window.innerWidth <= 860;
+  }
 
   // Toast notifications state
   let toast = { show: false, message: '', type: 'success' };
@@ -61,19 +66,18 @@
 
   function handleNavClick(e, sectionId) {
     mobileMenuOpen = false;
-    if (currentPage !== 'home') {
-      e.preventDefault();
-      currentPage = 'home';
-      setTimeout(() => {
-        const el = document.getElementById(sectionId);
-        if (el) {
-          window.scrollTo({
-            top: el.offsetTop - 80,
-            behavior: 'smooth'
-          });
-        }
-      }, 100);
-    }
+    e.preventDefault();
+    const wasHome = currentPage === 'home';
+    currentPage = 'home';
+    setTimeout(() => {
+      const el = document.getElementById(sectionId);
+      if (el) {
+        window.scrollTo({
+          top: el.offsetTop - 80,
+          behavior: 'smooth'
+        });
+      }
+    }, wasHome ? 0 : 100);
   }
 
   function toggleMobileMenu() {
@@ -401,9 +405,12 @@
   }
 
   onMount(() => {
+    handleResize();
+    window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll);
     runCalculation();
     return () => {
+      window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll);
     };
   });
@@ -417,27 +424,72 @@
         <div class="logo-dot"></div>
         <span>JOSEPH.B()</span>
       </div>
-      <div class="nav-controls">
-        <ul class="nav-links" class:open={mobileMenuOpen}>
-          <li><a href="#summary" class:active={activeSection === 'summary' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'summary')}>Info</a></li>
-          <li><a href="#experience" class:active={activeSection === 'experience' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'experience')}>Exp</a></li>
-          <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>Blog</a></li>
-          <li><a href="#projects" class:active={activeSection === 'projects' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'projects')}>Projects</a></li>
-          <li><a href="#skills" class:active={activeSection === 'skills' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'skills')}>Skills</a></li>
-          <li><a href="#contact" class:active={activeSection === 'contact' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'contact')}>Contact</a></li>
-        </ul>
-        <button class="theme-toggle" on:click={toggleTheme}>
-          {isLightTheme ? '[DARK_MODE]' : '[LIGHT_MODE]'}
-        </button>
-        <button class="mobile-menu-toggle" class:open={mobileMenuOpen} on:click={toggleMobileMenu} aria-label="Toggle navigation menu" aria-expanded={mobileMenuOpen}>
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </div>
+      
+      {#if !isMobile}
+        <!-- Web Layout Navigation -->
+        <div class="nav-controls">
+          <ul class="nav-links">
+            <li><a href="#summary" class:active={activeSection === 'summary' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'summary')}>Info</a></li>
+            <li><a href="#experience" class:active={activeSection === 'experience' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'experience')}>Exp</a></li>
+            <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>Blog</a></li>
+            <li><a href="#projects" class:active={activeSection === 'projects' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'projects')}>Projects</a></li>
+            <li><a href="#skills" class:active={activeSection === 'skills' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'skills')}>Skills</a></li>
+            <li><a href="#contact" class:active={activeSection === 'contact' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'contact')}>Contact</a></li>
+          </ul>
+          <button class="theme-toggle" on:click={toggleTheme}>
+            {isLightTheme ? '[DARK_MODE]' : '[LIGHT_MODE]'}
+          </button>
+        </div>
+      {:else}
+        <!-- Mobile Layout Navigation (Controls Only) -->
+        <div class="nav-controls">
+          <button class="theme-toggle" on:click={toggleTheme}>
+            {isLightTheme ? '[DARK]' : '[LIGHT]'}
+          </button>
+          <button class="mobile-menu-toggle" class:open={mobileMenuOpen} on:click={toggleMobileMenu} aria-label="Toggle navigation menu" aria-expanded={mobileMenuOpen}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      {/if}
     </nav>
   </div>
 </header>
+
+{#if isMobile}
+  <!-- Mobile Navigation Drawer Overlay -->
+  <div class="mobile-drawer" class:open={mobileMenuOpen}>
+    <div class="drawer-header">
+      <div class="logo">
+        <div class="logo-dot"></div>
+        <span>JOSEPH.B()</span>
+      </div>
+      <button class="mobile-menu-toggle open" on:click={toggleMobileMenu} aria-label="Close navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+    
+    <ul class="drawer-links">
+      <li><a href="#summary" class:active={activeSection === 'summary' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'summary')}>[INFO]</a></li>
+      <li><a href="#experience" class:active={activeSection === 'experience' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'experience')}>[EXPERIENCE]</a></li>
+      <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>[BLOG]</a></li>
+      <li><a href="#projects" class:active={activeSection === 'projects' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'projects')}>[PROJECTS]</a></li>
+      <li><a href="#skills" class:active={activeSection === 'skills' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'skills')}>[SKILLS]</a></li>
+      <li><a href="#contact" class:active={activeSection === 'contact' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'contact')}>[CONTACT]</a></li>
+    </ul>
+    
+    <div class="drawer-footer">
+      <div class="drawer-socials">
+        <a href="mailto:joebamisaye068@gmail.com">Email</a>
+        <a href="https://github.com/joethesaint" target="_blank" rel="noreferrer">GitHub</a>
+        <a href="https://linkedin.com/in/joseph-bamisaye" target="_blank" rel="noreferrer">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+{/if}
 
 <!-- Main Wrapper -->
 <main class="container">
@@ -447,14 +499,14 @@
   <!-- Hero / Summary Section -->
   <section id="summary" class="hero-section" style="position: relative; overflow: hidden;">
     <BoidsVisual {isLightTheme} />
-    <div style="position: relative; z-index: 10;">
+    <div class="hero-content">
       <span class="hero-subtitle">SYSTEM.STATUS = "ACTIVE"</span>
       <h1 class="hero-title">Joseph Dave <span class="accent">Bamisaye</span></h1>
       <p class="hero-desc">
         Confident and results-driven Software Engineer with a Bachelor’s degree in Agricultural and Environmental Engineering. Specialized in sustainable development, green energy, and environmental innovation. Passionate about merging agricultural and environmental engineering with software engineering to create solutions that address the spectrum of sustainability challenges.
       </p>
       
-      <div class="profiles-row" style="display: flex; flex-wrap: wrap; gap: 1.5rem; margin-bottom: 2rem;">
+      <div class="profiles-row">
         <div class="meta-item" style="display: flex; align-items: center; gap: 0.5rem;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px; color: var(--accent-green);"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
           <a href="mailto:joebamisaye068@gmail.com">joebamisaye068@gmail.com</a>
@@ -579,7 +631,7 @@
     <!-- Articles Grid -->
     <div class="grid-2" style="margin-bottom: 3rem;">
       {#each articles as article (article.id)}
-        <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 1.5rem; height: 100%;">
+        <div class="glass-card portfolio-card">
           <div>
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
               <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">
@@ -622,7 +674,7 @@
     
     <div class="grid-3">
       {#each projects.slice(0, 3) as project (project.title)}
-        <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 1.5rem; height: 100%;">
+        <div class="glass-card portfolio-card">
           <div>
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
               <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">[PROJECT]</span>
@@ -758,7 +810,7 @@
   {:else if currentPage === 'case-study'}
   <div class="page-fade-in">
     <!-- Detailed Case Study / Interactive Sandbox Page -->
-    <section id="case-study-page" style="padding-top: 40px; padding-bottom: 80px;">
+    <section id="case-study-page" class="detail-page-section">
       <div style="margin-bottom: 2rem;">
         <button class="btn btn-secondary" on:click={() => navigate('home')} style="font-family: var(--font-mono); font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; background: none; border-color: var(--card-border); color: var(--accent-green); padding: 0.5rem 1rem;">
           &larr; [BACK_TO_PORTFOLIO]
@@ -804,7 +856,7 @@
 
         <div class="grid-2 sandbox-panel" style="background-color: var(--bg-primary); border: 1.5px solid var(--card-border); border-radius: 6px; margin-bottom: 2rem;">
           <div class="calc-container">
-            <div class="calc-row" style="display: flex; gap: 1rem; margin-bottom: 1.25rem;">
+            <div class="calc-row">
               <div class="calc-field" style="flex: 1;">
                 <label for="outcomes" class="calc-label" style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block;">Outcomes (newline/comma/space)</label>
                 <textarea id="outcomes" class="calc-input" rows="3" style="width: 100%; background: var(--bg-secondary); border: 1px solid var(--card-border); color: var(--text-main); padding: 0.5rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.9rem;" bind:value={outcomesInput} on:input={runCalculation}></textarea>
@@ -853,7 +905,7 @@
   {:else if currentPage === 'projects'}
   <div class="page-fade-in">
     <!-- Detailed All Projects Page -->
-    <section id="all-projects-page" style="padding-top: 40px; padding-bottom: 80px;">
+    <section id="all-projects-page" class="detail-page-section">
       <div style="margin-bottom: 2rem;">
         <button class="btn btn-secondary" on:click={() => navigate('home')} style="font-family: var(--font-mono); font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.5rem; background: none; border-color: var(--card-border); color: var(--accent-green); padding: 0.5rem 1rem;">
           &larr; [BACK_TO_PORTFOLIO]
@@ -873,7 +925,7 @@
 
         <div class="grid-3">
           {#each projects as project (project.title)}
-            <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 1.5rem; height: 100%; background: var(--bg-secondary);">
+            <div class="glass-card portfolio-card secondary">
               <div>
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
                   <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">[PROJECT]</span>

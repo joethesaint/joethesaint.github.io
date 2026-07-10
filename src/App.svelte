@@ -39,6 +39,18 @@
     }, 4000);
   }
 
+  // Contact form state
+  let contactName = '';
+  let contactEmail = '';
+  let contactMessage = '';
+
+  function handleContactSubmit() {
+    const subject = `Portfolio contact from ${contactName}`;
+    const body = `${contactMessage}\n\n— ${contactName} (${contactEmail})`;
+    window.location.href = `mailto:joebamisaye068@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    showToast('Opening your email client to send the message...');
+  }
+
   function navigate(page) {
     currentPage = page;
     window.scrollTo(0, 0);
@@ -734,10 +746,10 @@
       <h2 class="section-title" style="justify-content: center;">Send a Message</h2>
     </div>
     
-    <form class="contact-form" on:submit|preventDefault={() => showToast('Message transmitted successfully! Thanks for reaching out.')}>
-      <input type="text" placeholder="Your Name" class="form-input" required />
-      <input type="email" placeholder="Your Email Address" class="form-input" required />
-      <textarea placeholder="Your Message" rows="5" class="form-input" style="resize: vertical;" required></textarea>
+    <form class="contact-form" on:submit|preventDefault={handleContactSubmit}>
+      <input type="text" placeholder="Your Name" class="form-input" bind:value={contactName} required />
+      <input type="email" placeholder="Your Email Address" class="form-input" bind:value={contactEmail} required />
+      <textarea placeholder="Your Message" rows="5" class="form-input" style="resize: vertical;" bind:value={contactMessage} required></textarea>
       <button type="submit" class="btn btn-primary">Transmit Message</button>
     </form>
   </section>

@@ -4,6 +4,23 @@
   import futaLogo from './assets/futa_logo.png';
   import holbertonLogo from './assets/holberton_logo.svg';
 
+  // Plotly is only needed for the interactive sandbox chart, so it's loaded
+  // on demand rather than blocking initial page load with a multi-MB CDN script.
+  let plotlyLoadPromise;
+  function loadPlotly() {
+    if (typeof Plotly !== 'undefined') return Promise.resolve();
+    if (!plotlyLoadPromise) {
+      plotlyLoadPromise = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.plot.ly/plotly-2.24.1.min.js';
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error('Failed to load Plotly'));
+        document.head.appendChild(script);
+      });
+    }
+    return plotlyLoadPromise;
+  }
+
   // State
   let activeSection = 'summary';
   let isLightTheme = false;
@@ -227,9 +244,9 @@
       };
 
       // Draw the plotly chart
-      setTimeout(() => {
-        drawChart(fStar, fInflection, outcomes, normProbs, Q, w);
-      }, 0);
+      loadPlotly()
+        .then(() => drawChart(fStar, fInflection, outcomes, normProbs, Q, w))
+        .catch((e) => { calcResults.error = e.message; });
       
     } catch (e) {
       calcResults.error = e.message;

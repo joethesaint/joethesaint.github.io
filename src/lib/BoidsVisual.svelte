@@ -217,6 +217,9 @@
     renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true }); // Disabled MSAA for additional draw speed
     renderer.setSize(width, height);
     renderer.setPixelRatio(1); // Cap pixel ratio to 1 for lightweight mobile GPU processing
+    // container has no Svelte-managed children, so imperatively mounting the
+    // Three.js canvas here is safe and won't desync from the Svelte runtime.
+    // eslint-disable-next-line svelte/no-dom-manipulating
     container.appendChild(renderer.domElement);
 
     for (let i = 0; i < BOID_COUNT; i++) {

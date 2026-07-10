@@ -549,7 +549,7 @@
     
     <!-- Articles Grid -->
     <div class="grid-2" style="margin-bottom: 3rem;">
-      {#each articles as article}
+      {#each articles as article (article.id)}
         <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 1.5rem; height: 100%;">
           <div>
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
@@ -592,7 +592,7 @@
     </div>
     
     <div class="grid-3">
-      {#each projects.slice(0, 3) as project}
+      {#each projects.slice(0, 3) as project (project.title)}
         <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 1.5rem; height: 100%;">
           <div>
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
@@ -605,7 +605,7 @@
             <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.5rem;">{project.desc}</p>
           </div>
           <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: auto;">
-            {#each project.tags as tag}
+            {#each project.tags as tag (tag)}
               <span class="skill-tag" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 3px;">{tag}</span>
             {/each}
           </div>
@@ -737,7 +737,7 @@
       </div>
 
       <article class="glass-card detail-card">
-        <header style="position: static; background: none; border-bottom: none; backdrop-filter: none; padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1.5px dashed var(--card-border);">
+        <header style="position: static; background: none; backdrop-filter: none; padding-bottom: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1.5px dashed var(--card-border);">
           <span style="color: var(--accent-green); font-size: 0.85rem; font-weight: bold;">[TECHNICAL_CASE_STUDY] &bull; Q3 2026</span>
           <h1 class="detail-title" style="font-weight: 800; margin-top: 0.5rem; line-height: 1.2; color: var(--text-main);">
             Inflection Point Significance for the Investment Size in Finite Horizons
@@ -832,7 +832,7 @@
       </div>
 
       <div class="glass-card detail-card">
-        <header style="position: static; background: none; border-bottom: none; backdrop-filter: none; padding-bottom: 1.5rem; margin-bottom: 2.5rem; border-bottom: 1.5px dashed var(--card-border);">
+        <header style="position: static; background: none; backdrop-filter: none; padding-bottom: 1.5rem; margin-bottom: 2.5rem; border-bottom: 1.5px dashed var(--card-border);">
           <span style="color: var(--accent-green); font-size: 0.85rem; font-weight: bold;">[ARCHIVE] &bull; INDEX OF PROJECTS</span>
           <h1 class="detail-title" style="font-weight: 800; margin-top: 0.5rem; line-height: 1.2; color: var(--text-main);">
             Complete Codebase Index
@@ -843,7 +843,7 @@
         </header>
 
         <div class="grid-3">
-          {#each projects as project}
+          {#each projects as project (project.title)}
             <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between; padding: 1.5rem; height: 100%; background: var(--bg-secondary);">
               <div>
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
@@ -856,7 +856,7 @@
                 <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.5rem;">{project.desc}</p>
               </div>
               <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: auto;">
-                {#each project.tags as tag}
+                {#each project.tags as tag (tag)}
                   <span class="skill-tag" style="font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 3px; background: var(--bg-primary);">{tag}</span>
                 {/each}
               </div>

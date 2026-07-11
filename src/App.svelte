@@ -1,6 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import BoidsVisual from './lib/BoidsVisual.svelte';
+  import AsciiGenVisual from './lib/AsciiGenVisual.svelte';
   import futaLogo from './assets/futa_logo.png';
   import holbertonLogo from './assets/holberton_logo.svg';
 
@@ -674,7 +675,30 @@
     <div class="section-header">
       <h2 class="section-title">Projects & Codebases</h2>
     </div>
-    
+
+    <!-- Featured Build: AsciiGen live demo -->
+    <div class="glass-card portfolio-card" style="margin-bottom: 2rem; display: grid; grid-template-columns: 1.1fr 1fr; gap: 2rem; align-items: stretch;">
+      <div>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
+          <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">[FEATURED_BUILD]</span>
+          <a href="https://github.com/joethesaint/AsciiGen" target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[GITHUB &rarr;]</a>
+        </div>
+        <h3 style="font-size: 1.15rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--text-main);">AsciiGen</h3>
+        <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.5rem;">
+          A creative coding suite that turns static media into ASCII art and volumetric point clouds. The panel to the right renders a live 3D bust straight through an ASCII effect &mdash; the same idea AsciiGen's PointGen engine applies to any image: sculpt structure out of characters instead of pixels.
+        </p>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: auto;">
+          <span class="skill-tag">Three.js</span>
+          <span class="skill-tag">GLSL</span>
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">Flask</span>
+        </div>
+      </div>
+      <div style="min-height: 320px; border-radius: 4px; overflow: hidden; border: 1px solid var(--card-border);">
+        <AsciiGenVisual {isLightTheme} />
+      </div>
+    </div>
+
     <div class="grid-3">
       {#each projects.slice(0, 3) as project (project.title)}
         <div class="glass-card portfolio-card">

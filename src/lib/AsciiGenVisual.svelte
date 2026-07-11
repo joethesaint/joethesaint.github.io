@@ -107,7 +107,7 @@
       bust.position.sub(center.multiplyScalar(targetSize / maxDim));
 
       bust.traverse((child) => {
-        if (child.isMesh) {
+        if (child instanceof THREE.Mesh) {
           child.material = new THREE.MeshStandardMaterial({
             color: 0xffffff,
             roughness: 0.6,
@@ -148,7 +148,7 @@
       container.removeEventListener('pointerleave', handlePointerLeave);
       cancelAnimationFrame(animationFrameId);
       scene.traverse((child) => {
-        if (child.isMesh) {
+        if (child instanceof THREE.Mesh) {
           child.geometry.dispose();
           child.material.dispose();
         }

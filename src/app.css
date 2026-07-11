@@ -43,6 +43,10 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+body.drawer-open {
+  overflow: hidden;
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
@@ -812,36 +816,6 @@ input[type="range"].calc-input::-moz-range-thumb:hover {
     display: flex;
   }
 
-  .nav-links {
-    position: fixed;
-    top: 64px;
-    left: 0;
-    right: 0;
-    flex-direction: column;
-    gap: 0;
-    background: var(--bg-primary);
-    border-bottom: 1.5px solid var(--card-border);
-    max-height: 0;
-    overflow: hidden;
-    opacity: 0;
-    transition: max-height 0.3s ease, opacity 0.2s ease;
-  }
-
-  .nav-links.open {
-    max-height: 400px;
-    opacity: 1;
-  }
-
-  .nav-links li {
-    width: 100%;
-  }
-
-  .nav-links a {
-    display: block;
-    padding: 1rem 24px;
-    border-bottom: 1px solid var(--card-border);
-  }
-
   .theme-toggle {
     font-size: 0.7rem;
     padding: 0.35rem 0.6rem;
@@ -1019,11 +993,15 @@ input[type="range"].calc-input::-moz-range-thumb:hover {
   justify-content: space-between;
   padding: 24px 24px 40px 24px;
   transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
 }
 
 .mobile-drawer.open {
   transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .drawer-header {
@@ -1042,6 +1020,24 @@ input[type="range"].calc-input::-moz-range-thumb:hover {
   margin: auto 0;
   padding: 0;
 }
+
+.drawer-links li {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.mobile-drawer.open .drawer-links li {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mobile-drawer.open .drawer-links li:nth-child(1) { transition-delay: 0.08s; }
+.mobile-drawer.open .drawer-links li:nth-child(2) { transition-delay: 0.12s; }
+.mobile-drawer.open .drawer-links li:nth-child(3) { transition-delay: 0.16s; }
+.mobile-drawer.open .drawer-links li:nth-child(4) { transition-delay: 0.2s; }
+.mobile-drawer.open .drawer-links li:nth-child(5) { transition-delay: 0.24s; }
+.mobile-drawer.open .drawer-links li:nth-child(6) { transition-delay: 0.28s; }
 
 .drawer-links a {
   font-size: 1.4rem;
@@ -1082,5 +1078,48 @@ input[type="range"].calc-input::-moz-range-thumb:hover {
 
 .drawer-socials a:hover {
   color: var(--accent-green);
+}
+
+/* Respect the user's motion preference: shorten/disable animations & transitions */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    scroll-behavior: auto !important;
+  }
+
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Touch feedback: instant tap highlight instead of the browser's default grey flash,
+   plus lightweight :active press states so taps feel responsive on mobile. */
+a, button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.skill-tag:active {
+  transform: scale(0.95);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+  background-color: var(--accent-green-dim);
+}
+
+.glass-card:active {
+  border-color: var(--accent-green-glow);
+}
+
+.drawer-links a:active {
+  color: var(--accent-green);
+}
+
+.mobile-menu-toggle:active span {
+  background-color: var(--accent-green);
 }
 

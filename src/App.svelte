@@ -2,7 +2,6 @@
   import { onMount } from 'svelte';
   import BoidsVisual from './lib/BoidsVisual.svelte';
   import AsciiGenVisual from './lib/AsciiGenVisual.svelte';
-  import MatrixRain from './lib/MatrixRain.svelte';
   import futaLogo from './assets/futa_logo.png';
   import holbertonLogo from './assets/holberton_logo.svg';
 
@@ -821,12 +820,11 @@
   </section>
 
   <!-- Contact Form Section -->
-  <section id="contact" style="position: relative; overflow: hidden;">
-    <MatrixRain {isLightTheme} />
+  <section id="contact">
     <div class="section-header" style="text-align: center;">
       <h2 class="section-title" style="justify-content: center;">Send a Message</h2>
     </div>
-
+    
     <form class="contact-form" on:submit|preventDefault={handleContactSubmit}>
       <input type="text" placeholder="Your Name" class="form-input" bind:value={contactName} required />
       <input type="email" placeholder="Your Email Address" class="form-input" bind:value={contactEmail} required />

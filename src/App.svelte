@@ -175,6 +175,13 @@
       tags: ['Three.js', 'ASCII Art', 'Vanilla JS']
     },
     {
+      title: 'Out of Office',
+      demo: '/out-of-office/index.html',
+      github: '#',
+      desc: 'An anti-burnout interactive web application built with Svelte 5 & Three.js. Features gamified ticket interactions, memory timeline, custom 3D graphics, and ambient soundscapes.',
+      tags: ['Svelte 5', 'Three.js', 'Vite', 'Gamification']
+    },
+    {
       title: 'SaveMyLinks',
       github: 'https://github.com/joethesaint/savemylinks',
       desc: 'An open source website bookmark manager tool designed to save, organize, and categorize web links efficiently with a clean and simple interface.',

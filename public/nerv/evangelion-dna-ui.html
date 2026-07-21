@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NERV Interface — Genomic Analysis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: oklch(14% 0.02 260);
+      --surface: oklch(18% 0.02 260);
+      --border: oklch(35% 0.1 35);
+      --orange: oklch(65% 0.25 35);
+      --cyan: oklch(75% 0.15 220);
+      --text: oklch(92% 0.01 260);
+      --text-muted: oklch(65% 0.02 260);
+      --mono: 'JetBrains Mono', monospace;
+      --display: 'Space Grotesk', sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--mono); text-transform: uppercase; }
+    body { background-color: var(--bg); color: var(--text); overflow: hidden; position: relative; letter-spacing: -0.02em; }
+    
+    body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 2px); z-index: 100; pointer-events: none; }
+    body::after { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, transparent 50%, rgba(0, 0, 0, 0.4) 100%); z-index: 110; pointer-events: none; }
+    
+    #app { display: grid; grid-template-columns: 1fr 420px; grid-template-rows: 90px 1fr 90px; height: 100vh; padding: 1.5rem; gap: 1.5rem; z-index: 10; position: relative; }
+    
+    header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border); padding: 0 2rem; background: linear-gradient(135deg, rgba(255, 72, 0, 0.05), transparent); box-shadow: inset 0 0 20px rgba(255, 72, 0, 0.05); }
+    .logo-area { display: flex; align-items: center; gap: 2rem; }
+    .system-nav { display: flex; gap: 1rem; }
+    .nav-btn { color: var(--text-muted); text-decoration: none; font-size: 1.1rem; font-weight: 700; padding: 0.3rem 0.8rem; border: 1px solid transparent; transition: all 0.3s ease; font-family: var(--display); }
+    .nav-btn:hover { color: var(--orange); border-color: rgba(255, 72, 0, 0.3); text-shadow: 0 0 8px rgba(255, 72, 0, 0.5); }
+    .nav-btn.active { color: var(--cyan); border-color: var(--cyan); box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2); text-shadow: 0 0 8px rgba(0, 255, 255, 0.5); }
+    
+    .logo { color: var(--orange); font-family: var(--display); font-weight: 700; font-size: 2.5rem; letter-spacing: -0.05em; display: flex; align-items: center; text-shadow: 0 0 10px rgba(255, 72, 0, 0.5); }
+    .logo::before { content: ''; display: inline-block; width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent; border-bottom: 24px solid var(--orange); margin-right: 15px; filter: drop-shadow(0 0 5px var(--orange)); }
+    .status { color: var(--cyan); font-size: 1.1rem; font-weight: 700; animation: blink 2s infinite; text-shadow: 0 0 8px rgba(0, 255, 255, 0.5); }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+    .time { color: var(--text); font-size: 1.4rem; font-weight: 700; }
+    
+    main { grid-column: 1; grid-row: 2; position: relative; border: 1px solid var(--border); background-color: var(--surface); display: flex; justify-content: center; align-items: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.5); overflow: hidden; }
+    
+    #ascii-dna-container { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; z-index: 2; position: relative; }
+    canvas#ascii-dna-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+    
+    aside { grid-column: 2; grid-row: 2; border: 1px solid var(--border); background-color: var(--surface); padding: 1.5rem; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+    .data-panel { flex: 1; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--orange) transparent; padding-right: 1rem; }
+    .data-section { margin-bottom: 2.5rem; }
+    .data-section h3 { color: var(--orange); margin-bottom: 1rem; border-bottom: 2px solid var(--border); padding-bottom: 0.5rem; font-size: 1.2rem; font-weight: 800; letter-spacing: 0.05em; text-shadow: 0 0 5px rgba(255, 72, 0, 0.3); }
+    .data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+    .data-item { display: flex; flex-direction: column; gap: 0.2rem; background: rgba(0,0,0,0.2); padding: 0.8rem; border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s ease; cursor: crosshair; }
+    .data-item:hover { background: rgba(0, 255, 255, 0.1); border-color: var(--cyan); transform: translateX(5px); box-shadow: -5px 0 0 var(--cyan); }
+    .data-label { color: var(--text-muted); font-size: 0.75rem; font-weight: 700; }
+    .data-value { color: var(--cyan); font-size: 1rem; font-weight: 700; text-shadow: 0 0 5px rgba(0, 255, 255, 0.4); }
+    .warning { color: var(--bg); background-color: var(--orange); padding: 0.8rem; font-size: 0.95rem; font-weight: 800; text-align: center; animation: warning-pulse 1s infinite; box-shadow: 0 0 15px rgba(255, 72, 0, 0.3); }
+    @keyframes warning-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; background-color: oklch(50% 0.2 35); } }
+    .status-bar { height: 8px; background-color: rgba(0, 0, 0, 0.5); margin: 1.5rem 0; position: relative; border: 1px solid var(--border); }
+    .status-fill { height: 100%; background-color: var(--cyan); width: 98%; box-shadow: 0 0 10px var(--cyan); transition: width 0.5s ease; }
+    
+    .terminal { color: var(--cyan); font-size: 0.85rem; line-height: 1.5; margin-top: 1rem; height: 250px; overflow-y: auto; position: relative; background: rgba(0,0,0,0.3); padding: 1rem; border: 1px solid var(--border); }
+    .terminal-line { margin-bottom: 0.3rem; opacity: 0; transform: translateY(10px); animation: terminal-entry 0.3s forwards; }
+    @keyframes terminal-entry { to { opacity: 1; transform: translateY(0); } }
+    
+    footer { grid-column: 1 / -1; grid-row: 3; border: 1px solid var(--border); background-color: var(--surface); padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
+    .command-line { display: flex; align-items: center; width: 100%; font-size: 1.2rem; }
+    .command-prompt { color: var(--orange); margin-right: 1.5rem; font-weight: 800; }
+    .command-input { background-color: transparent; border: none; color: var(--text); font-family: var(--mono); font-size: 1.2rem; width: 100%; outline: none; font-weight: 700; }
+    .command-input::placeholder { color: var(--text-muted); }
+    .command-input:focus { text-shadow: 0 0 8px rgba(255, 255, 255, 0.3); }
+    
+    .grid-lines { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: 1; }
+    .h-line, .v-line { position: absolute; background-color: rgba(255, 72, 0, 0.1); }
+    .h-line { height: 1px; width: 100%; }
+    .v-line { width: 1px; height: 100%; }
+    .hebrew-char { position: absolute; color: rgba(255, 72, 0, 0.15); font-family: serif; font-size: 2rem; z-index: 1; pointer-events: none; }
+    
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="logo-area">
+        <div class="logo">NERV</div>
+        <nav class="system-nav">
+          <a href="evangelion-sphere-ui.html" class="nav-btn">SPHERE</a>
+          <a href="evangelion-dna-ui.html" class="nav-btn active">GENOME</a>
+          <a href="evangelion-boids-ui.html" class="nav-btn">SWARM</a>
+        </nav>
+      </div>
+      <div class="status">BIOMETRIC STATUS: SYNCHRONIZING</div>
+      <div class="time">T-MINUS 24:15:37</div>
+    </header>
+    
+    <main>
+      <div id="ascii-dna-container">
+        <canvas id="ascii-dna-canvas"></canvas>
+      </div>
+      
+      <!-- Target cross overlay -->
+      <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5; display: flex; justify-content: center; align-items: center;">
+        <div style="position: relative; width: 400px; height: 400px;">
+          <div style="position: absolute; top: 50%; left: -50px; width: calc(100% + 100px); height: 1px; background-color: rgba(255, 72, 0, 0.4); transform: translateY(-50%);"></div>
+          <div style="position: absolute; top: -50px; left: 50%; width: 1px; height: calc(100% + 100px); background-color: rgba(255, 72, 0, 0.4); transform: translateX(-50%);"></div>
+          <div style="position: absolute; top: 15%; left: 15%; width: 70%; height: 70%; border: 1px dashed rgba(255, 72, 0, 0.15); border-radius: 50%; animation: spin 20s linear infinite;"></div>
+        </div>
+      </div>
+      
+      <div class="grid-lines"></div>
+      <div class="hebrew-chars"></div>
+    </main>
+    
+    <aside>
+      <div class="data-panel">
+        <div class="data-section">
+          <h3>GENOMIC ANALYSIS (ASCII)</h3>
+          <div class="status-bar"><div class="status-fill"></div></div>
+          <div class="data-grid">
+            <div class="data-item"><span class="data-label">BASE PAIRS</span><span class="data-value">3.2 BILLION</span></div>
+            <div class="data-item"><span class="data-label">HELIX TYPE</span><span class="data-value">A-DNA (DIGITAL)</span></div>
+            <div class="data-item"><span class="data-label">CHROMOSOMES</span><span class="data-value">24 (ANOMALY)</span></div>
+            <div class="data-item"><span class="data-label">PATTERN</span><span class="data-value">ANGELIC: BLUE</span></div>
+          </div>
+          <div class="warning">WARNING: 99.89% SIMILARITY DETECTED</div>
+        </div>
+        
+        <div class="data-section">
+          <h3>LCL SATURATION</h3>
+          <div class="data-grid">
+            <div class="data-item"><span class="data-label">SYNC RATE</span><span class="data-value">400.0%</span></div>
+            <div class="data-item"><span class="data-label">HARMONIC</span><span class="data-value">DANGER</span></div>
+            <div class="data-item"><span class="data-label">EGO BORDER</span><span class="data-value">COLLAPSING</span></div>
+            <div class="data-item"><span class="data-label">PLUG DEPTH</span><span class="data-value">> 180</span></div>
+          </div>
+        </div>
+        
+        <div class="data-section">
+          <h3>MAGI SEQUENCER</h3>
+          <div class="terminal" id="terminal"></div>
+        </div>
+      </div>
+    </aside>
+    
+    <footer>
+      <div class="command-line">
+        <span class="command-prompt">NERV></span>
+        <input type="text" class="command-input" placeholder="SEQUENCE GENOME -ASCII" aria-label="Command input" spellcheck="false">
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // --- Canvas ASCII DNA Animation ---
+    const canvas = document.getElementById('ascii-dna-canvas');
+    const ctx = canvas.getContext('2d');
+    let phase = 0;
+    
+    function resize() {
+      const dpr = window.devicePixelRatio || 1;
+      const rect = canvas.parentElement.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+    }
+    window.addEventListener('resize', resize);
+    resize();
+    
+    const colCyan = '#00ffff';
+    const colOrange = '#ff4800';
+    const colWhite = 'rgba(255,255,255,0.8)';
+    const colMuted = 'rgba(255,255,255,0.3)';
+    const bridgeCharsArr = ["━", "≡", "─"];
+    const bpPairs = ["A-T", "T-A", "G-C", "C-G"];
+    
+    function renderASCII() {
+      const rect = canvas.parentElement.getBoundingClientRect();
+      ctx.clearRect(0, 0, rect.width, rect.height);
+      
+      ctx.font = '14px "JetBrains Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      const charWidth = 8.4;
+      const lineHeight = 16;
+      const heightRows = 35; 
+      const widthCols = 60;
+      
+      const startY = (rect.height - (heightRows * lineHeight)) / 2;
+      const startX = (rect.width - (widthCols * charWidth)) / 2;
+      const centerCol = widthCols / 2;
+      const amplitude = 18;
+      
+      for (let i = 0; i < heightRows; i++) {
+        let rowPhase = phase + (i * 0.25);
+        
+        let z1 = Math.cos(rowPhase);
+        let z2 = Math.cos(rowPhase + Math.PI);
+        
+        let x1 = Math.floor(centerCol + Math.sin(rowPhase) * amplitude);
+        let x2 = Math.floor(centerCol + Math.sin(rowPhase + Math.PI) * amplitude);
+        
+        let y = startY + (i * lineHeight) + lineHeight/2;
+        
+        let frontX, backX, frontColor, backColor, frontChar, backChar;
+        
+        if (z1 > z2) {
+          frontX = x1; backX = x2;
+          frontColor = colCyan; backColor = colOrange;
+          frontChar = '█'; backChar = '░';
+        } else {
+          frontX = x2; backX = x1;
+          frontColor = colOrange; backColor = colCyan;
+          frontChar = '█'; backChar = '░';
+        }
+        
+        let minX = Math.min(x1, x2);
+        let maxX = Math.max(x1, x2);
+        
+        // Draw bridge
+        if (maxX - minX > 1) {
+          const showLabel = (i % 4 === 0) && (maxX - minX > 5);
+          const bpLabel = showLabel ? bpPairs[(Math.floor(i / 4)) % bpPairs.length] : null;
+          const midCol = Math.floor((minX + maxX) / 2);
+          
+          for (let j = minX + 1; j < maxX; j++) {
+            let drawX = startX + (j * charWidth) + charWidth/2;
+            
+            if (showLabel && (j === midCol || j === midCol-1 || j === midCol+1)) {
+               if (j === midCol-1) {
+                  ctx.fillStyle = colWhite;
+                  ctx.shadowBlur = 0;
+                  ctx.fillText(bpLabel[0], drawX, y);
+               } else if (j === midCol) {
+                  ctx.fillStyle = colMuted;
+                  ctx.shadowBlur = 0;
+                  ctx.fillText(bpLabel[1], drawX, y);
+               } else if (j === midCol+1) {
+                  ctx.fillStyle = colWhite;
+                  ctx.shadowBlur = 0;
+                  ctx.fillText(bpLabel[2], drawX, y);
+               }
+            } else {
+              let hash = (i * 137 + j * 97) % bridgeCharsArr.length;
+              let char = bridgeCharsArr[hash];
+              ctx.fillStyle = colMuted;
+              ctx.shadowBlur = 0;
+              ctx.fillText(char, drawX, y);
+            }
+          }
+        }
+        
+        // Draw back strand or cross
+        if (x1 === x2) {
+          let drawX = startX + (x1 * charWidth) + charWidth/2;
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowColor = '#ffffff';
+          ctx.shadowBlur = 10;
+          ctx.fillText('╳', drawX, y);
+        } else {
+          let backDrawX = startX + (backX * charWidth) + charWidth/2;
+          ctx.fillStyle = backColor;
+          ctx.globalAlpha = 0.5;
+          ctx.shadowBlur = 0;
+          ctx.fillText(backChar, backDrawX, y);
+          ctx.globalAlpha = 1.0;
+          
+          let frontDrawX = startX + (frontX * charWidth) + charWidth/2;
+          ctx.fillStyle = frontColor;
+          ctx.shadowColor = frontColor;
+          ctx.shadowBlur = 15;
+          ctx.fillText(frontChar, frontDrawX, y);
+        }
+      }
+      
+      phase -= 0.05;
+      requestAnimationFrame(renderASCII);
+    }
+    
+    requestAnimationFrame(renderASCII);
+
+    // --- UI Logic ---
+    const gridLines = document.querySelector('.grid-lines');
+    for (let i = 1; i < 10; i++) {
+      const hLine = document.createElement('div'); hLine.classList.add('h-line'); hLine.style.top = `${i * 10}%`; gridLines.appendChild(hLine);
+      const vLine = document.createElement('div'); vLine.classList.add('v-line'); vLine.style.left = `${i * 10}%`; gridLines.appendChild(vLine);
+    }
+    
+    const hebrewChars = 'אבגדהוזחטיכלמנסעפצקרשת';
+    const main = document.querySelector('main');
+    for (let i = 0; i < 8; i++) {
+      const char = document.createElement('div'); char.classList.add('hebrew-char'); char.textContent = hebrewChars[Math.floor(Math.random() * hebrewChars.length)];
+      char.style.left = `${Math.random() * 80 + 10}%`; char.style.top = `${Math.random() * 80 + 10}%`; char.style.transform = `rotate(${Math.random() * 360}deg) scale(${Math.random() + 0.5})`;
+      main.appendChild(char);
+    }
+    
+    const timeDisplay = document.querySelector('.time');
+    let totalSeconds = 24 * 3600 + 15 * 37;
+    setInterval(() => {
+      totalSeconds--; const h = Math.floor(totalSeconds / 3600); const m = Math.floor((totalSeconds % 3600) / 60); const s = totalSeconds % 60;
+      timeDisplay.textContent = `T-MINUS ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    }, 1000);
+
+    // --- Dynamic Terminal ---
+    const logs = [
+      "0xGEN01 > INITIALIZING ASCII SEQUENCER", "0xGEN02 > PARSING TEXT-BASED STRANDS...", "0xGEN03 > RENDERING BASE PAIRS: A-T, G-C", "0xGEN04 > MAPPING CHROMOSOMAL DATA",
+      "0xGEN05 > SEQUENCING... 12%", "0xGEN06 > SEQUENCING... 38%", "0xGEN07 > SEQUENCING... 64%", "0xGEN08 > SEQUENCING... 89%",
+      "0xGEN09 > ERROR: NON-HUMAN MARKERS DETECTED", "0xGEN10 > ISOLATING ANOMALY", "0xGEN11 > PATTERN MATCH: ANGELIC", "0xGEN12 > WARNING: 99.89% CONGRUENCE",
+      "0xGEN13 > UPLOADING TO MAGI: MELCHIOR", "0xGEN14 > MELCHIOR VETO. BYPASSING...", "0xGEN15 > UPLOADING TO MAGI: BALTHASAR", "0xGEN16 > RECALIBRATING EGO BORDER",
+      "0xGEN17 > SYNCHRONIZATION RATE SPIKE DETECTED", "0xGEN18 > PLUG DEPTH EXCEEDING SAFE LIMITS", "0xGEN19 > PURGING CONTAMINATED DATA", "0xGEN20 > AWAITING COMMANDER OVERRIDE"
+    ];
+    
+    const terminal = document.getElementById('terminal');
+    let logIndex = 0;
+    let logTimeoutId = null;
+    
+    function addLog(customMessage = null) {
+      const line = document.createElement('div'); line.className = 'terminal-line'; 
+      line.textContent = customMessage ? customMessage : logs[logIndex % logs.length];
+      if (customMessage) line.style.color = "var(--orange)";
+      terminal.appendChild(line); 
+      
+      while (terminal.childNodes.length > 50) {
+        terminal.removeChild(terminal.firstChild);
+      }
+      
+      terminal.scrollTop = terminal.scrollHeight;
+      if (!customMessage) { 
+        logIndex++; 
+        logTimeoutId = setTimeout(addLog, Math.random() * 800 + 200); 
+      }
+    }
+    addLog();
+
+    const cmdInput = document.querySelector('.command-input');
+    cmdInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        const val = this.value.trim().toUpperCase();
+        if (val === '') return;
+        addLog(`> USER_CMD: ${val}`); this.value = '';
+        setTimeout(() => {
+          if (val === 'SWARM') { addLog("0xFF0000 > REDIRECTING TO SWARM ANALYSIS..."); setTimeout(() => window.location.href = 'evangelion-boids-ui.html', 1000); }
+          else if (val === 'SPHERE') { addLog("0xFF0000 > REDIRECTING TO SPHERE ANALYSIS..."); setTimeout(() => window.location.href = 'evangelion-sphere-ui.html', 1000); }
+          else if (val === 'CLEAR') { 
+            terminal.innerHTML = ''; 
+            if (logTimeoutId) clearTimeout(logTimeoutId);
+          }
+          else if (val === 'HELP') {
+            addLog("> AVAILABLE COMMANDS:");
+            addLog("  SWARM  - REDIRECT TO SWARM ANALYSIS");
+            addLog("  SPHERE - REDIRECT TO SPHERE ANALYSIS");
+            addLog("  CLEAR  - CLEAR TERMINAL OUTPUT");
+            addLog("  HELP   - DISPLAY THIS MESSAGE");
+          }
+          else {
+            addLog("0xFF0000 > COMMAND NOT RECOGNIZED BY MAGI SYSTEM");
+            document.body.style.background = 'rgba(255, 0, 0, 0.1)';
+            setTimeout(() => document.body.style.background = 'var(--bg)', 200);
+          }
+        }, 500);
+      }
+    });
+  </script>
+</body>
+</html>

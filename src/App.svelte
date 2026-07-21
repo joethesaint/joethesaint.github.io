@@ -168,6 +168,13 @@
 
   const projects = [
     {
+      title: 'NERV MAGI Interface',
+      demo: '/nerv/evangelion-sphere-ui.html',
+      github: '#',
+      desc: 'An immersive, gamified web interface modeled after the MAGI system from Evangelion. Features interactive 3D ASCII rendering, Three.js flocking simulations, and a fully functional dynamic terminal.',
+      tags: ['Three.js', 'ASCII Art', 'Vanilla JS']
+    },
+    {
       title: 'SaveMyLinks',
       github: 'https://github.com/joethesaint/savemylinks',
       desc: 'An open source website bookmark manager tool designed to save, organize, and categorize web links efficiently with a clean and simple interface.',
@@ -705,8 +712,11 @@
           <div>
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
               <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">[PROJECT]</span>
-              {#if project.github !== '#'}
+              {#if project.github && project.github !== '#'}
                 <a href={project.github} target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[GITHUB &rarr;]</a>
+              {/if}
+              {#if project.demo}
+                <a href={project.demo} target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[LIVE DEMO &rarr;]</a>
               {/if}
             </div>
             <h3 style="font-size: 1.15rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--text-main);">{project.title}</h3>
@@ -956,8 +966,11 @@
               <div>
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
                   <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">[PROJECT]</span>
-                  {#if project.github !== '#'}
+                  {#if project.github && project.github !== '#'}
                     <a href={project.github} target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[GITHUB &rarr;]</a>
+                  {/if}
+                  {#if project.demo}
+                    <a href={project.demo} target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[LIVE DEMO &rarr;]</a>
                   {/if}
                 </div>
                 <h3 style="font-size: 1.15rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--text-main);">{project.title}</h3>

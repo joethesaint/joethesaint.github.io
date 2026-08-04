@@ -176,7 +176,7 @@
     },
     {
       title: 'Out of Office',
-      demo: '/out-of-office/index.html',
+      demo: '/out-of-office/',
       github: '#',
       desc: 'An anti-burnout interactive web application built with Svelte 5 & Three.js. Features gamified ticket interactions, memory timeline, custom 3D graphics, and ambient soundscapes.',
       tags: ['Svelte 5', 'Three.js', 'Vite', 'Gamification']

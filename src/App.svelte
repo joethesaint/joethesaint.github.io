@@ -411,7 +411,7 @@
   }
 
   // Scroll Tracking
-  const sections = ['summary', 'experience', 'blog', 'projects', 'skills', 'contact'];
+  const sections = ['summary', 'experience', 'projects', 'blog', 'skills', 'contact'];
   
   function handleScroll() {
     const scrollPosition = window.scrollY + 120;
@@ -454,8 +454,8 @@
           <ul class="nav-links">
             <li><a href="#summary" class:active={activeSection === 'summary' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'summary')}>Info</a></li>
             <li><a href="#experience" class:active={activeSection === 'experience' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'experience')}>Exp</a></li>
-            <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>Blog</a></li>
             <li><a href="#projects" class:active={activeSection === 'projects' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'projects')}>Projects</a></li>
+            <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>Blog</a></li>
             <li><a href="#skills" class:active={activeSection === 'skills' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'skills')}>Skills</a></li>
             <li><a href="#contact" class:active={activeSection === 'contact' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'contact')}>Contact</a></li>
           </ul>
@@ -498,8 +498,8 @@
     <ul class="drawer-links">
       <li><a href="#summary" class:active={activeSection === 'summary' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'summary')}>[INFO]</a></li>
       <li><a href="#experience" class:active={activeSection === 'experience' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'experience')}>[EXPERIENCE]</a></li>
-      <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>[BLOG]</a></li>
       <li><a href="#projects" class:active={activeSection === 'projects' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'projects')}>[PROJECTS]</a></li>
+      <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>[BLOG]</a></li>
       <li><a href="#skills" class:active={activeSection === 'skills' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'skills')}>[SKILLS]</a></li>
       <li><a href="#contact" class:active={activeSection === 'contact' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'contact')}>[CONTACT]</a></li>
     </ul>
@@ -640,50 +640,6 @@
     </div>
   </section>
 
-  <!-- Blog / Case Study Section (Vince/Zhu Inflection Point Solver) -->
-  <section id="blog">
-    <div class="section-header">
-      <h2 class="section-title">Research & Technical Articles</h2>
-    </div>
-    
-    <!-- Articles Grid -->
-    <div class="grid-2" style="margin-bottom: 3rem;">
-      {#each articles as article (article.id)}
-        <div class="glass-card portfolio-card">
-          <div>
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
-              <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">
-                {#if article.type === 'medium'}
-                  <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;"><path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zm7.42 0c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42zM24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"/></svg>
-                {:else if article.type === 'linkedin'}
-                  <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/></svg>
-                {:else if article.type === 'substack'}
-                  <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>
-                {:else}
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-                {/if}
-                <span>{article.platform}</span>
-              </div>
-              <span style="font-size: 0.75rem; color: var(--text-muted);">{article.date}</span>
-            </div>
-            <h3 style="font-size: 1.1rem; font-weight: bold; margin-bottom: 0.75rem; line-height: 1.3;">{article.title}</h3>
-            <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.5rem;">{article.description}</p>
-          </div>
-          {#if article.type === 'local'}
-            <button class="proj-link" style="background: none; border: none; font-size: 0.8rem; margin-top: auto; cursor: pointer; text-align: left; padding: 0; color: var(--accent-green); font-family: var(--font-mono);" on:click={() => navigate('case-study')}>
-              [READ_CASE_STUDY &rarr;]
-            </button>
-          {:else}
-            <a href={article.link} class="proj-link" style="font-size: 0.8rem; margin-top: auto;">
-              [READ_ON_PLATFORM &rarr;]
-            </a>
-          {/if}
-        </div>
-      {/each}
-    </div>
-
-  </section>
-
   <!-- Projects & Publications -->
   <section id="projects">
     <div class="section-header">
@@ -743,6 +699,50 @@
         [SEE_MORE_PROJECTS &rarr;]
       </button>
     </div>
+  </section>
+
+  <!-- Blog / Case Study Section (Vince/Zhu Inflection Point Solver) -->
+  <section id="blog">
+    <div class="section-header">
+      <h2 class="section-title">Research & Technical Articles</h2>
+    </div>
+
+    <!-- Articles Grid -->
+    <div class="grid-2" style="margin-bottom: 3rem;">
+      {#each articles as article (article.id)}
+        <div class="glass-card portfolio-card">
+          <div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
+              <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">
+                {#if article.type === 'medium'}
+                  <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;"><path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zm7.42 0c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42zM24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"/></svg>
+                {:else if article.type === 'linkedin'}
+                  <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/></svg>
+                {:else if article.type === 'substack'}
+                  <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px;"><path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/></svg>
+                {:else}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 16px; height: 16px;"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                {/if}
+                <span>{article.platform}</span>
+              </div>
+              <span style="font-size: 0.75rem; color: var(--text-muted);">{article.date}</span>
+            </div>
+            <h3 style="font-size: 1.1rem; font-weight: bold; margin-bottom: 0.75rem; line-height: 1.3;">{article.title}</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.5rem;">{article.description}</p>
+          </div>
+          {#if article.type === 'local'}
+            <button class="proj-link" style="background: none; border: none; font-size: 0.8rem; margin-top: auto; cursor: pointer; text-align: left; padding: 0; color: var(--accent-green); font-family: var(--font-mono);" on:click={() => navigate('case-study')}>
+              [READ_CASE_STUDY &rarr;]
+            </button>
+          {:else}
+            <a href={article.link} class="proj-link" style="font-size: 0.8rem; margin-top: auto;">
+              [READ_ON_PLATFORM &rarr;]
+            </a>
+          {/if}
+        </div>
+      {/each}
+    </div>
+
   </section>
 
   <!-- Skills & Education -->

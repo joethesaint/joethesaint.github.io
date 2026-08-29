@@ -488,21 +488,13 @@
 </header>
 
 {#if isMobile}
-  <!-- Mobile Navigation Drawer Overlay -->
-  <div class="mobile-drawer" class:open={mobileMenuOpen}>
-    <div class="drawer-header">
-      <div class="logo">
-        <div class="logo-dot"></div>
-        <span>JOSEPH.B()</span>
-      </div>
-      <button class="mobile-menu-toggle open" on:click={toggleMobileMenu} aria-label="Close navigation menu">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-    </div>
-    
-    <ul class="drawer-links">
+  <!-- Mobile Nav Dropdown: anchored under the hamburger, not a full-screen overlay,
+       so all sections stay glanceable and the page behind it stays visible. -->
+  {#if mobileMenuOpen}
+    <button class="nav-backdrop" aria-label="Close navigation menu" on:click={toggleMobileMenu}></button>
+  {/if}
+  <div class="nav-dropdown" class:open={mobileMenuOpen}>
+    <ul class="dropdown-links">
       <li><a href="#summary" class:active={activeSection === 'summary' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'summary')}>[INFO]</a></li>
       <li><a href="#experience" class:active={activeSection === 'experience' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'experience')}>[EXPERIENCE]</a></li>
       <li><a href="#projects" class:active={activeSection === 'projects' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'projects')}>[PROJECTS]</a></li>
@@ -510,8 +502,8 @@
       <li><a href="#skills" class:active={activeSection === 'skills' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'skills')}>[SKILLS]</a></li>
       <li><a href="#contact" class:active={activeSection === 'contact' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'contact')}>[CONTACT]</a></li>
     </ul>
-    
-    <div class="drawer-footer">
+
+    <div class="dropdown-footer">
       <div class="drawer-socials">
         <a href="mailto:joebamisaye068@gmail.com">Email</a>
         <a href="https://github.com/joethesaint" target="_blank" rel="noreferrer">GitHub</a>

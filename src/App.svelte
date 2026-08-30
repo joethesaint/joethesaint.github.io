@@ -29,6 +29,15 @@
   let mobileMenuOpen = false;
   let isMobile = false;
 
+  // Mobile accordion state: which content section (besides the hero) is expanded.
+  // null = all collapsed, headers only. Desktop ignores this and always shows everything.
+  let expandedSection = null;
+
+  function toggleSection(sectionId) {
+    if (!isMobile) return;
+    expandedSection = expandedSection === sectionId ? null : sectionId;
+  }
+
   function handleResize() {
     isMobile = window.innerWidth <= 860;
     if (!isMobile && mobileMenuOpen) {
@@ -75,6 +84,9 @@
 
   function handleNavClick(e, sectionId) {
     setMobileMenuOpen(false);
+    if (isMobile && sectionId !== 'summary') {
+      expandedSection = sectionId;
+    }
     e.preventDefault();
     const wasHome = currentPage === 'home';
     currentPage = 'home';
@@ -556,10 +568,14 @@
 
   <!-- Career Experience Section -->
   <section id="experience">
-    <div class="section-header">
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <div class="section-header" class:accordion-toggle={isMobile} on:click={() => toggleSection('experience')} on:keydown={(e) => e.key === 'Enter' && toggleSection('experience')} role={isMobile ? 'button' : null} tabindex={isMobile ? 0 : null} aria-expanded={isMobile ? expandedSection === 'experience' : null}>
       <h2 class="section-title">Career History</h2>
+      {#if isMobile}<span class="accordion-chevron" class:open={expandedSection === 'experience'}>&darr;</span>{/if}
     </div>
-    
+
+    <div class="accordion-body" class:open={!isMobile || expandedSection === 'experience'}>
+    <div class="accordion-inner">
     <div class="experience-list">
       <div class="exp-item">
         <div class="exp-header">
@@ -637,13 +653,20 @@
         </ul>
       </div>
     </div>
+    </div>
+    </div>
   </section>
 
   <!-- Projects & Publications -->
   <section id="projects">
-    <div class="section-header">
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <div class="section-header" class:accordion-toggle={isMobile} on:click={() => toggleSection('projects')} on:keydown={(e) => e.key === 'Enter' && toggleSection('projects')} role={isMobile ? 'button' : null} tabindex={isMobile ? 0 : null} aria-expanded={isMobile ? expandedSection === 'projects' : null}>
       <h2 class="section-title">Projects & Codebases</h2>
+      {#if isMobile}<span class="accordion-chevron" class:open={expandedSection === 'projects'}>&darr;</span>{/if}
     </div>
+
+    <div class="accordion-body" class:open={!isMobile || expandedSection === 'projects'}>
+    <div class="accordion-inner">
 
     <!-- Featured Build: AsciiGen live demo -->
     <div class="glass-card portfolio-card" style="margin-bottom: 2rem; display: grid; grid-template-columns: 1.1fr 1fr; gap: 2rem; align-items: stretch;">
@@ -698,13 +721,20 @@
         [SEE_MORE_PROJECTS &rarr;]
       </button>
     </div>
+    </div>
+    </div>
   </section>
 
   <!-- Blog / Case Study Section (Vince/Zhu Inflection Point Solver) -->
   <section id="blog">
-    <div class="section-header">
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <div class="section-header" class:accordion-toggle={isMobile} on:click={() => toggleSection('blog')} on:keydown={(e) => e.key === 'Enter' && toggleSection('blog')} role={isMobile ? 'button' : null} tabindex={isMobile ? 0 : null} aria-expanded={isMobile ? expandedSection === 'blog' : null}>
       <h2 class="section-title">Research & Technical Articles</h2>
+      {#if isMobile}<span class="accordion-chevron" class:open={expandedSection === 'blog'}>&darr;</span>{/if}
     </div>
+
+    <div class="accordion-body" class:open={!isMobile || expandedSection === 'blog'}>
+    <div class="accordion-inner">
 
     <!-- Articles Grid -->
     <div class="grid-2" style="margin-bottom: 3rem;">
@@ -742,14 +772,20 @@
       {/each}
     </div>
 
+    </div>
+    </div>
   </section>
 
   <!-- Skills & Education -->
   <section id="skills">
-    <div class="section-header">
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <div class="section-header" class:accordion-toggle={isMobile} on:click={() => toggleSection('skills')} on:keydown={(e) => e.key === 'Enter' && toggleSection('skills')} role={isMobile ? 'button' : null} tabindex={isMobile ? 0 : null} aria-expanded={isMobile ? expandedSection === 'skills' : null}>
       <h2 class="section-title">Credentials & Skills</h2>
+      {#if isMobile}<span class="accordion-chevron" class:open={expandedSection === 'skills'}>&darr;</span>{/if}
     </div>
-    
+
+    <div class="accordion-body" class:open={!isMobile || expandedSection === 'skills'}>
+    <div class="accordion-inner">
     <div class="grid-2">
       <div class="skills-container">
         <div>
@@ -833,20 +869,28 @@
         </div>
       </div>
     </div>
+    </div>
+    </div>
   </section>
 
   <!-- Contact Form Section -->
   <section id="contact">
-    <div class="section-header" style="text-align: center;">
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <div class="section-header" style="text-align: center;" class:accordion-toggle={isMobile} on:click={() => toggleSection('contact')} on:keydown={(e) => e.key === 'Enter' && toggleSection('contact')} role={isMobile ? 'button' : null} tabindex={isMobile ? 0 : null} aria-expanded={isMobile ? expandedSection === 'contact' : null}>
       <h2 class="section-title" style="justify-content: center;">Send a Message</h2>
+      {#if isMobile}<span class="accordion-chevron" class:open={expandedSection === 'contact'}>&darr;</span>{/if}
     </div>
-    
+
+    <div class="accordion-body" class:open={!isMobile || expandedSection === 'contact'}>
+    <div class="accordion-inner">
     <form class="contact-form" on:submit|preventDefault={handleContactSubmit}>
       <input type="text" placeholder="Your Name" class="form-input" bind:value={contactName} required />
       <input type="email" placeholder="Your Email Address" class="form-input" bind:value={contactEmail} required />
       <textarea placeholder="Your Message" rows="5" class="form-input" style="resize: vertical;" bind:value={contactMessage} required></textarea>
       <button type="submit" class="btn btn-primary">Transmit Message</button>
     </form>
+    </div>
+    </div>
   </section>
   </div>
 

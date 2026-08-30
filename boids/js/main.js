@@ -45,21 +45,46 @@ class SpatialHashGrid {
     }
 }
 
-// --- Optimized Trail with Ring Buffer ---
-class Trail {
-    constructor(scene, color, length = 20) {
-        this.scene = scene;
-        this.maxLength = length;
-        this.points = new Array(length).fill(null).map(() => new THREE.Vector3());
-        this.head = 0; // Ring buffer pointer
-        this.visible = true;
+// --- Batched Trail System ---
+// All trails of a given boid type share ONE LineSegments mesh (one draw call)
+// instead of one THREE.Line per boid. This is the single biggest win for
+// boid counts in the hundreds: 250 boids previously meant 250 draw calls
+// just for trails.
+class TrailSystem {
+    constructor(scene, color, maxTrails, trailLength = 20) {
+        this.maxTrails = maxTrails;
+        this.trailLength = trailLength;
+        this.segmentsPerTrail = trailLength - 1;
+        this.vertsPerTrail = this.segmentsPerTrail * 2;
 
+        // Ring-buffer state per trail slot
+        this.heads = new Uint16Array(maxTrails);
+        this.points = new Array(maxTrails);
+        for (let t = 0; t < maxTrails; t++) {
+            const arr = new Array(trailLength);
+            for (let i = 0; i < trailLength; i++) arr[i] = new THREE.Vector3();
+            this.points[t] = arr;
+        }
+
+        // Free-list of trail slot indices
+        this.freeIndices = [];
+        for (let i = maxTrails - 1; i >= 0; i--) this.freeIndices.push(i);
+
+        const totalVerts = maxTrails * this.vertsPerTrail;
         const geometry = new THREE.BufferGeometry();
-        this.positions = new Float32Array(this.maxLength * 3);
+        this.positions = new Float32Array(totalVerts * 3);
         geometry.setAttribute('position', new THREE.BufferAttribute(this.positions, 3));
 
-        const alphas = new Float32Array(this.maxLength);
-        for (let i = 0; i < this.maxLength; i++) alphas[i] = 1.0 - (i / this.maxLength);
+        // Alpha only depends on a vertex's age-within-trail, which is the
+        // same pattern for every slot, so it's static (never re-uploaded).
+        const alphas = new Float32Array(totalVerts);
+        const pattern = new Float32Array(this.vertsPerTrail);
+        let vi = 0;
+        for (let s = 0; s < this.segmentsPerTrail; s++) {
+            pattern[vi++] = s / (trailLength - 1);
+            pattern[vi++] = (s + 1) / (trailLength - 1);
+        }
+        for (let t = 0; t < maxTrails; t++) alphas.set(pattern, t * this.vertsPerTrail);
         geometry.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
 
         this.material = new THREE.ShaderMaterial({
@@ -84,34 +109,58 @@ class Trail {
             depthWrite: false
         });
 
-        this.line = new THREE.Line(geometry, this.material);
-        this.line.frustumCulled = false;
-        this.scene.add(this.line);
+        this.mesh = new THREE.LineSegments(geometry, this.material);
+        this.mesh.frustumCulled = false;
+        scene.add(this.mesh);
     }
 
-    update(position) {
-        if (!this.visible) { this.line.visible = false; return; }
-        this.line.visible = true;
+    allocate() {
+        if (this.freeIndices.length === 0) return -1;
+        return this.freeIndices.pop();
+    }
 
-        // Advance ring buffer
-        this.points[this.head].copy(position);
-        this.head = (this.head + 1) % this.maxLength;
+    release(index) {
+        if (index < 0) return;
+        this.collapse(index);
+        this.freeIndices.push(index);
+    }
 
-        const posAttr = this.line.geometry.attributes.position;
-        for (let i = 0; i < this.maxLength; i++) {
-            // Read back from head to show oldest to newest
-            const idx = (this.head - 1 - i + this.maxLength) % this.maxLength;
-            const p = this.points[idx];
-            this.positions[i * 3] = p.x;
-            this.positions[i * 3 + 1] = p.y;
-            this.positions[i * 3 + 2] = p.z;
+    // Collapse a slot's segments to zero length so it stops rendering
+    // without needing to touch draw range / index buffers.
+    collapse(index) {
+        const pts = this.points[index];
+        const last = pts[(this.heads[index] - 1 + this.trailLength) % this.trailLength];
+        for (let i = 0; i < this.trailLength; i++) pts[i].copy(last);
+        this._writeSegments(index);
+    }
+
+    update(index, position) {
+        const pts = this.points[index];
+        pts[this.heads[index]].copy(position);
+        this.heads[index] = (this.heads[index] + 1) % this.trailLength;
+        this._writeSegments(index);
+    }
+
+    _writeSegments(index) {
+        const pts = this.points[index];
+        const head = this.heads[index];
+        const base = index * this.vertsPerTrail * 3;
+        let vi = base;
+        for (let s = 0; s < this.segmentsPerTrail; s++) {
+            const a = pts[(head + s) % this.trailLength];
+            const b = pts[(head + s + 1) % this.trailLength];
+            this.positions[vi] = a.x; this.positions[vi + 1] = a.y; this.positions[vi + 2] = a.z; vi += 3;
+            this.positions[vi] = b.x; this.positions[vi + 1] = b.y; this.positions[vi + 2] = b.z; vi += 3;
         }
-        posAttr.needsUpdate = true;
+    }
+
+    commit() {
+        this.mesh.geometry.attributes.position.needsUpdate = true;
     }
 
     destroy() {
-        this.scene.remove(this.line);
-        this.line.geometry.dispose();
+        this.mesh.parent && this.mesh.parent.remove(this.mesh);
+        this.mesh.geometry.dispose();
         this.material.dispose();
     }
 }
@@ -130,7 +179,7 @@ function initScratch() {
 }
 
 class Boid {
-    constructor(type, position, params, scene) {
+    constructor(type, position, params, trailSystem) {
         initScratch();
         this.type = type;
         this.position = position.clone();
@@ -140,7 +189,8 @@ class Boid {
         this.maxSpeed = type.maxSpeed;
         this.maxForce = type.maxForce;
         this.active = true;
-        this.trail = scene ? new Trail(scene, type.color, 20) : null;
+        this.trailSystem = trailSystem || null;
+        this.trailIndex = trailSystem ? trailSystem.allocate() : -1;
     }
 
     applyRules(neighbors, predators, foodSources, obstacles, params, mouse3D) {
@@ -151,6 +201,8 @@ class Boid {
 
         const sepDistSq = params.perception.separation * params.perception.separation;
         const flockDistSq = 1225; // 35^2
+        const isSmallFish = this.type === BOID_TYPES.SMALL_FISH;
+        let fleeX = 0, fleeY = 0, fleeZ = 0, fC = 0;
 
         for (let i = 0; i < neighbors.length; i++) {
             const other = neighbors[i];
@@ -163,6 +215,14 @@ class Boid {
             if (dSq < flockDistSq) {
                 ali.add(other.velocity); aC++;
                 coh.add(other.position); cC++;
+            }
+            // Species Interaction: small fish avoid large fish. Folded into
+            // this same neighbor pass instead of a second full scan below.
+            if (isSmallFish && dSq < 1600 && other.type === BOID_TYPES.LARGE_FISH) {
+                fleeX += this.position.x - other.position.x;
+                fleeY += this.position.y - other.position.y;
+                fleeZ += this.position.z - other.position.z;
+                fC++;
             }
         }
 
@@ -179,17 +239,11 @@ class Boid {
             }
         }
 
-        // Species Interaction: Small fish avoid large fish
-        if (this.type === BOID_TYPES.SMALL_FISH) {
-            for (let i = 0; i < neighbors.length; i++) {
-                if (neighbors[i].type === BOID_TYPES.LARGE_FISH) {
-                    const dSq = this.position.distanceToSquared(neighbors[i].position);
-                    if (dSq < 1600) {
-                        const flee = _v4.subVectors(this.position, neighbors[i].position).normalize().multiplyScalar(this.maxSpeed * 1.5);
-                        this.acceleration.add(flee.sub(this.velocity).clampLength(0, this.maxForce * 2).multiplyScalar(1.2));
-                    }
-                }
-            }
+        // Species Interaction: Small fish avoid large fish (accumulated in
+        // the neighbor loop above instead of a second full scan here).
+        if (fC > 0) {
+            const flee = _v4.set(fleeX, fleeY, fleeZ).normalize().multiplyScalar(this.maxSpeed * 1.5);
+            this.acceleration.add(flee.sub(this.velocity).clampLength(0, this.maxForce * 2).multiplyScalar(1.2));
         }
 
         // Slight Wander for natural motion
@@ -260,13 +314,17 @@ class Boid {
             if (this.position.z < -m) this.position.z = m; else if (this.position.z > m) this.position.z = -m;
         }
 
-        if (this.trail) {
-            this.trail.visible = params.features.trails;
-            this.trail.update(this.position);
+        if (this.trailSystem && this.trailIndex >= 0 && params.features.trails) {
+            this.trailSystem.update(this.trailIndex, this.position);
         }
     }
 
-    destroy() { if (this.trail) this.trail.destroy(); }
+    destroy() {
+        if (this.trailSystem && this.trailIndex >= 0) {
+            this.trailSystem.release(this.trailIndex);
+            this.trailIndex = -1;
+        }
+    }
 }
 
 class Predator {
@@ -279,28 +337,34 @@ class Predator {
         this.maxSpeed = params.predators.speed;
         this.huntCooldown = 0;
     }
-    update(boids, params, dt) {
+    update(grid, params, dt) {
         const step = dt * 60;
         if (this.huntCooldown > 0) this.huntCooldown -= step;
-        let target = null, maxPriorityDistSq = -1;
-        const huntRadiusSq = params.predators.huntRadius * params.predators.huntRadius;
+        let target = null, maxPriorityDistSq = -1, targetDistSq = Infinity;
+        const huntRadius = params.predators.huntRadius;
+        const huntRadiusSq = huntRadius * huntRadius;
 
-        for (let i = 0; i < boids.length; i++) {
-            const b = boids[i];
+        // Query the same spatial grid the boids use instead of scanning
+        // every boid in the flock — keeps hunting cheap as boid counts scale
+        // into the thousands instead of costing O(N) per predator per frame.
+        const nearby = grid.getNearby(this.position, huntRadius);
+        for (let i = 0; i < nearby.length; i++) {
+            const b = nearby[i];
             if (!b.active) continue;
             const dSq = this.position.distanceToSquared(b.position);
             if (dSq < huntRadiusSq) {
                 // Priority: Large Fish > Bird > Small Fish
                 const priority = (b.type === BOID_TYPES.LARGE_FISH ? 3.0 : (b.type === BOID_TYPES.BIRD ? 2.0 : 1.0));
                 const score = priority / (Math.sqrt(dSq) + 1);
-                if (score > maxPriorityDistSq) { target = b; maxPriorityDistSq = score; }
+                if (score > maxPriorityDistSq) { target = b; maxPriorityDistSq = score; targetDistSq = dSq; }
             }
         }
         const acc = _v4.set(0, 0, 0);
         let caught = null;
         if (target && this.huntCooldown <= 0) {
+            const targetDistSq = this.position.distanceToSquared(target.position);
             acc.subVectors(target.position, this.position).normalize().multiplyScalar(this.maxSpeed).sub(this.velocity).clampLength(0, 0.6);
-            if (minDistSq < 49) { this.huntCooldown = 180; caught = target; }
+            if (targetDistSq < 49) { this.huntCooldown = 180; caught = target; }
         } else {
             acc.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).multiplyScalar(0.2);
         }
@@ -341,65 +405,130 @@ class Simulation {
             speed: { min: 1.0, max: 5.0 },
             forces: { separation: 2.0, alignment: 1.4, cohesion: 1.1 },
             perception: { separation: 16 },
-            lighting: { ambient: 0.6, bloom: 1.8, pointLight: 5.0, vignette: 1.0 },
+            lighting: { ambient: 0.6, bloom: 1.8, pointLight: 5.0 },
             performance: { simSpeed: 1.0, fpsLimit: 60 },
             audio: { enabled: false, sensitivity: 1.0 },
-            features: { trails: true, food: true, predators: true, followMouse: true, layering: true, wrapSpace: false }
+            features: { trails: true, food: true, predators: true, followMouse: true, layering: true, wrapSpace: false, lightMode: false }
         };
+        this.isMobile = this.detectMobile();
+        if (this.isMobile) {
+            // Leaner defaults so mid-range phones hold a stable framerate.
+            this.params.count = 120;
+            this.params.predators.count = 2;
+            this.params.food.count = 8;
+            this.params.performance.fpsLimit = 30;
+            this.params.features.trails = false;
+        }
+
         this.boids = []; this.predators = []; this.foodSources = []; this.obstacles = []; this.instancedMeshes = {};
+        this.trailSystems = {};
         this.pointLights = [];
         this.envMeshes = { edges: null, grid: null };
-        this.grid = new SpatialHashGrid(30); this.clock = new THREE.Clock(); this.isPaused = false; this.followedBoid = null;
+        // Neighbor query radius must cover the largest radius checked against
+        // grid-sourced neighbors (species avoidance at 40). Cell size matches
+        // it so getNearby only has to scan a 3x3x3 block of cells instead of
+        // a much larger one.
+        this.neighborRadius = 40;
+        this.grid = new SpatialHashGrid(this.neighborRadius); this.clock = new THREE.Clock(); this.isPaused = false; this.followedBoid = null;
         this.lastFrameTime = 0;
         this.mouse3D = new THREE.Vector3(); this.raycaster = new THREE.Raycaster(); this.mouse = new THREE.Vector2();
+        this.mousePlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
         this.audioContext = null; this.analyser = null; this.dataArray = null; this.audioSource = null;
+        // Reused each frame instead of a fresh `{ ...this.params }` spread,
+        // to avoid an allocation on every tick of the render loop.
+        this.frameParams = Object.assign({}, this.params, { speed: { min: 0, max: 0 } });
+        this.fpsEl = null; this.boidCountEl = null;
         this.init();
+    }
+
+    detectMobile() {
+        const coarsePointer = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+        const narrowScreen = Math.min(window.innerWidth, window.innerHeight) <= 820;
+        const uaMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '');
+        return uaMobile || (coarsePointer && narrowScreen);
+    }
+
+    // A flat fill reads as a stark, clinical wall of color — especially the
+    // pale gray of light mode, which ACESFilmicToneMapping crushes toward a
+    // dull mid-gray if set as a plain scene.background color. A big inverted
+    // sphere with a per-vertex gradient (and toneMapped:false, so it renders
+    // its true colors untouched) gives the scene a real "sky" in both themes.
+    createSkyDome(topColor, bottomColor) {
+        const radius = 6000;
+        const geo = new THREE.SphereGeometry(radius, 24, 16);
+        const top = new THREE.Color(topColor), bottom = new THREE.Color(bottomColor);
+        const pos = geo.attributes.position;
+        const colors = new Float32Array(pos.count * 3);
+        for (let i = 0; i < pos.count; i++) {
+            const t = THREE.MathUtils.clamp(pos.getY(i) / radius * 0.5 + 0.5, 0, 1);
+            const c = bottom.clone().lerp(top, t);
+            colors[i * 3] = c.r; colors[i * 3 + 1] = c.g; colors[i * 3 + 2] = c.b;
+        }
+        geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        const mat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.BackSide, depthWrite: false, fog: false, toneMapped: false });
+        const mesh = new THREE.Mesh(geo, mat);
+        mesh.renderOrder = -1000;
+        return mesh;
     }
 
     init() {
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0x020205);
+        this.skyDome = this.createSkyDome('#0a0f1c', '#020205');
+        this.scene.add(this.skyDome);
         this.scene.fog = new THREE.Fog(0x020205, 200, 1500);
         this.camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 10000);
         this.camera.position.set(0, 150, 400);
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        this.renderer = new THREE.WebGLRenderer({ antialias: !this.isMobile, powerPreference: "high-performance" });
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, this.isMobile ? 1.5 : 2));
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         document.body.appendChild(this.renderer.domElement);
         this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
         this.controls.enableDamping = true;
+        
+        // Disable right-click panning so the browser context menu can appear
+        this.controls.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: null };
+        this.renderer.domElement.addEventListener('contextmenu', e => e.stopPropagation(), true);
+
+        // OrbitControls already defaults touches to {ONE: ROTATE, TWO: DOLLY_PAN}; kept explicit for clarity.
+        this.controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
 
         try {
             this.composer = new THREE.EffectComposer(this.renderer);
             this.composer.addPass(new THREE.RenderPass(this.scene, this.camera));
-            this.bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.8, 0.4, 0.85);
+            const bloomScale = this.isMobile ? 0.6 : 1;
+            this.bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(window.innerWidth * bloomScale, window.innerHeight * bloomScale), 1.8, 0.4, 0.85);
             this.composer.addPass(this.bloomPass);
-
-            // Cinematic Vignette Pass
-            this.vignettePass = new THREE.ShaderPass({
-                uniforms: { tDiffuse: { value: null }, offset: { value: 1.0 }, darkness: { value: this.params.lighting.vignette } },
-                vertexShader: `varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
-                fragmentShader: `uniform sampler2D tDiffuse; uniform float offset; uniform float darkness; varying vec2 vUv; void main() { vec4 texel = texture2D(tDiffuse, vUv); vec2 uv = (vUv - 0.5) * 2.0; float vig = smoothstep(offset, offset - darkness, length(uv)); gl_FragColor = vec4(texel.rgb * vig, texel.a); }`
-            });
-            this.composer.addPass(this.vignettePass);
+            // Vignette pass removed — darkened edges were hiding the scene.
         } catch (e) { console.error("Composer Error", e); }
 
         this.setupLighting();
         this.setupEnvironment();
         this.initInstancedMeshes();
+        this.initTrailSystems();
         this.createBoids(this.params.count);
         this.createPredators(this.params.predators.count);
         this.createFoodSources(this.params.food.count);
-        this.createObstacles(6);
+        this.createObstacles(this.isMobile ? 3 : 6);
         this.setupUI();
-        window.addEventListener('resize', () => {
+        this.fpsEl = document.getElementById('fps');
+        this.boidCountEl = document.getElementById('boidCount');
+
+        const handleResize = () => {
             this.camera.aspect = window.innerWidth / window.innerHeight;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(window.innerWidth, window.innerHeight);
             if (this.composer) this.composer.setSize(window.innerWidth, window.innerHeight);
-        });
-        this.animate();
+        };
+        window.addEventListener('resize', handleResize);
+        // 'resize' can fire before iOS/Android finish rotating the layout; re-check shortly after.
+        window.addEventListener('orientationchange', () => setTimeout(handleResize, 300));
+        if (window.visualViewport) window.visualViewport.addEventListener('resize', handleResize);
+
+        // setAnimationLoop is the modern replacement for manually recursing
+        // requestAnimationFrame — same callback semantics, but it's the API
+        // three.js expects (e.g. required for WebXR sessions).
+        this.renderer.setAnimationLoop(() => this.animate());
     }
 
     async initAudio() {
@@ -451,20 +580,30 @@ class Simulation {
         if (this.envMeshes.snow) this.scene.remove(this.envMeshes.snow);
         
         const b = this.params.bounds;
-        const edges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(b * 2, b * 2, b * 2)), new THREE.LineBasicMaterial({ color: 0x334155, transparent: true, opacity: 0.2 }));
+        const isLight = this.params.features.lightMode;
+        // Dark-mode grid/edges are light lines on a near-black scene; light
+        // mode flips to darker slate lines on the pale background instead.
+        const edgeColor = isLight ? 0x94a3b8 : 0x334155;
+        const gridColorA = isLight ? 0xcbd5e1 : 0x1e293b;
+        const gridColorB = isLight ? 0xe2e8f0 : 0x0f172a;
+        const edges = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(b * 2, b * 2, b * 2)), new THREE.LineBasicMaterial({ color: edgeColor, transparent: true, opacity: isLight ? 0.35 : 0.2 }));
         this.scene.add(edges);
-        const grid = new THREE.GridHelper(b * 2, 12, 0x1e293b, 0x0f172a);
+        const grid = new THREE.GridHelper(b * 2, 12, gridColorA, gridColorB);
         grid.position.y = -b; this.scene.add(grid);
 
         // Marine Snow Particle System
-        const snowCount = 2000;
+        const snowCount = this.isMobile ? 700 : 2000;
         const snowGeo = new THREE.BufferGeometry();
         const snowPos = new Float32Array(snowCount * 3);
         for(let i=0; i<snowCount * 3; i++) {
             snowPos[i] = (Math.random() - 0.5) * (b * 2.5);
         }
         snowGeo.setAttribute('position', new THREE.BufferAttribute(snowPos, 3));
-        const snowMat = new THREE.PointsMaterial({ color: 0x88ccff, size: 0.5, transparent: true, opacity: 0.4, blending: THREE.AdditiveBlending });
+        // Additive blending washes light-blue specks out to near-invisible
+        // against a pale background, so light mode gets a darker slate tone
+        // with normal blending instead (mirrors the trail/boid treatment above).
+        const snowColor = isLight ? 0x64748b : 0x88ccff;
+        const snowMat = new THREE.PointsMaterial({ color: snowColor, size: 0.5, transparent: true, opacity: isLight ? 0.5 : 0.4, blending: isLight ? THREE.NormalBlending : THREE.AdditiveBlending });
         const snow = new THREE.Points(snowGeo, snowMat);
         this.scene.add(snow);
 
@@ -517,12 +656,22 @@ class Simulation {
         for (let k in this.instancedMeshes) { this.instancedMeshes[k].count = counts[k]; this.instancedMeshes[k].instanceMatrix.needsUpdate = true; }
     }
 
+    initTrailSystems() {
+        // Capacity per boid type; boids beyond this simply render without a
+        // trail rather than growing buffers at runtime.
+        const CAPACITY = 1000;
+        [BOID_TYPES.SMALL_FISH, BOID_TYPES.LARGE_FISH, BOID_TYPES.BIRD].forEach(t => {
+            this.trailSystems[t.name] = new TrailSystem(this.scene, t.color, CAPACITY, 20);
+        });
+    }
+
     createBoids(count) {
         const r = [this.params.boidTypes.smallFishRatio, this.params.boidTypes.largeFishRatio];
         for (let i = 0; i < count; i++) {
             const rand = Math.random();
             const type = rand < r[0] ? BOID_TYPES.SMALL_FISH : (rand < r[0] + r[1] ? BOID_TYPES.LARGE_FISH : BOID_TYPES.BIRD);
-            this.boids.push(new Boid(type, new THREE.Vector3((Math.random() - 0.5) * 280, (Math.random() - 0.5) * 280, (Math.random() - 0.5) * 280), this.params, this.scene));
+            const trailSystem = this.trailSystems[type.name];
+            this.boids.push(new Boid(type, new THREE.Vector3((Math.random() - 0.5) * 280, (Math.random() - 0.5) * 280, (Math.random() - 0.5) * 280), this.params, trailSystem));
         }
     }
 
@@ -530,13 +679,20 @@ class Simulation {
         this.predators.forEach(p => this.scene.remove(p.mesh)); this.predators = [];
         for (let i = 0; i < count; i++) {
             const p = new Predator(new THREE.Vector3((Math.random() - 0.5) * 400, (Math.random() - 0.5) * 400, (Math.random() - 0.5) * 400), this.params);
+            if (this.params.features.lightMode) {
+                p.mesh.material.emissive.setHex(0x000000);
+                p.mesh.material.color.copy(new THREE.Color(0xff3333).lerp(new THREE.Color(0x000000), 0.3));
+            }
             this.scene.add(p.mesh); this.predators.push(p);
         }
     }
 
     createFoodSources(count) {
         const geo = new THREE.SphereGeometry(1.5, 8, 8);
-        const mat = new THREE.MeshPhongMaterial({ color: 0x32cd32, emissive: 0x32cd32, emissiveIntensity: 0.8 });
+        const isLight = this.params.features.lightMode;
+        const color = isLight ? new THREE.Color(0x32cd32).lerp(new THREE.Color(0x000000), 0.3).getHex() : 0x32cd32;
+        const emissive = isLight ? 0x000000 : 0x32cd32;
+        const mat = new THREE.MeshPhongMaterial({ color: color, emissive: emissive, emissiveIntensity: 0.8 });
         for (let i = 0; i < count; i++) {
             const m = new THREE.Mesh(geo, mat); m.position.set((Math.random() - 0.5) * 300, (Math.random() - 0.5) * 300, (Math.random() - 0.5) * 300);
             this.scene.add(m); this.foodSources.push({ mesh: m, position: m.position });
@@ -553,21 +709,109 @@ class Simulation {
         }
     }
 
+    applyTheme() {
+        const isLight = this.params.features.lightMode;
+        document.body.classList.toggle('light-mode', isLight);
+        // Light mode gets a muted warm-gray gradient rather than a bright
+        // sky-blue/white one, which still read as a stark, unfriendly wall
+        // of white. Dark mode keeps its near-black gradient.
+        if (this.skyDome) { this.scene.remove(this.skyDome); this.skyDome.geometry.dispose(); this.skyDome.material.dispose(); }
+        this.skyDome = isLight
+            ? this.createSkyDome('#c9c3b6', '#e4dfd3')
+            : this.createSkyDome('#0a0f1c', '#020205');
+        this.scene.add(this.skyDome);
+        const bgColor = isLight ? 0xe4dfd3 : 0x020205;
+        if (this.scene.fog) this.scene.fog.color.set(bgColor);
+
+        if (this.bloomPass) {
+            this.bloomPass.strength = this.params.lighting.bloom * (isLight ? 0.6 : 1);
+            this.bloomPass.threshold = isLight ? 1.0 : 0.85;
+        }
+        
+        // Adjust Boid Colors & Emissive for Contrast
+        Object.values(BOID_TYPES).forEach(t => {
+            if (this.instancedMeshes[t.name]) {
+                const mat = this.instancedMeshes[t.name].material;
+                if (isLight) {
+                    mat.emissive.setHex(0x000000);
+                    const c = new THREE.Color(t.color).lerp(new THREE.Color(0x000000), 0.4);
+                    mat.color.copy(c);
+                } else {
+                    mat.emissive.setHex(t.color);
+                    mat.color.setHex(t.color);
+                }
+                mat.needsUpdate = true;
+            }
+            if (this.trailSystems && this.trailSystems[t.name]) {
+                const mat = this.trailSystems[t.name].material;
+                if (isLight) {
+                    mat.blending = THREE.NormalBlending;
+                    const c = new THREE.Color(t.color).lerp(new THREE.Color(0x000000), 0.5);
+                    mat.uniforms.color.value.copy(c);
+                } else {
+                    mat.blending = THREE.AdditiveBlending;
+                    mat.uniforms.color.value.setHex(t.color);
+                }
+                mat.needsUpdate = true;
+            }
+        });
+
+        // Adjust Predators & Food
+        this.predators.forEach(p => {
+            if (isLight) {
+                p.mesh.material.emissive.setHex(0x000000);
+                p.mesh.material.color.copy(new THREE.Color(0xff3333).lerp(new THREE.Color(0x000000), 0.3));
+            } else {
+                p.mesh.material.emissive.setHex(0xff0000);
+                p.mesh.material.color.setHex(0xff3333);
+            }
+            p.mesh.material.needsUpdate = true;
+        });
+        
+        this.foodSources.forEach(f => {
+            if (isLight) {
+                f.mesh.material.emissive.setHex(0x000000);
+                f.mesh.material.color.copy(new THREE.Color(0x32cd32).lerp(new THREE.Color(0x000000), 0.3));
+            } else {
+                f.mesh.material.emissive.setHex(0x32cd32);
+                f.mesh.material.color.setHex(0x32cd32);
+            }
+            f.mesh.material.needsUpdate = true;
+        });
+
+        this.setupEnvironment();
+    }
+
+    applyMobileDefaults() {
+        if (!this.isMobile) return;
+        const fpsSlider = document.getElementById('fps-limit');
+        if (fpsSlider) fpsSlider.value = this.params.performance.fpsLimit;
+        const fpsLabel = document.getElementById('fps-limit-value');
+        if (fpsLabel) fpsLabel.textContent = this.params.performance.fpsLimit;
+        const trailsToggle = document.getElementById('toggle-trails');
+        if (trailsToggle) trailsToggle.checked = this.params.features.trails;
+    }
+
     setupUI() {
         const bind = (id, param, obj) => {
             const el = document.getElementById(id); if (!el) return;
+            // Sync initial state from DOM
+            const initialVal = parseFloat(el.value);
+            obj[param] = (id.includes('fish') || id === 'birds') ? initialVal / 100 : initialVal;
+            const initVEl = document.getElementById(id + '-value'); if (initVEl) initVEl.textContent = initialVal;
+
             el.addEventListener('input', (e) => {
                 const val = parseFloat(e.target.value);
                 obj[param] = (id.includes('fish') || id === 'birds') ? val / 100 : val;
                 const vEl = document.getElementById(id + '-value'); if (vEl) vEl.textContent = val;
-                if (id === 'bloom' && this.bloomPass) this.bloomPass.strength = val;
+                if (id === 'bloom' && this.bloomPass) {
+                    const isLight = this.params.features.lightMode;
+                    this.bloomPass.strength = val * (isLight ? 0.6 : 1);
+                }
                 if (id === 'ambient') this.scene.children.filter(c => c.type === 'AmbientLight').forEach(l => l.intensity = val);
                 if (id === 'point-light' && this.pointLights.length) {
                     this.pointLights[0].intensity = val;
                     this.pointLights[1].intensity = val * 0.7;
-                }
-                if (id === 'vignette' && this.vignettePass) {
-                    this.vignettePass.uniforms.darkness.value = val;
                 }
                 if (id === 'bounds') {
                     this.params.bounds = val;
@@ -581,15 +825,20 @@ class Simulation {
         bind('bloom', 'bloom', this.params.lighting);
         bind('ambient', 'ambient', this.params.lighting);
         bind('point-light', 'pointLight', this.params.lighting);
-        bind('vignette', 'vignette', this.params.lighting);
         bind('bounds', 'bounds', this.params);
         bind('sim-speed', 'simSpeed', this.params.performance);
         bind('fps-limit', 'fpsLimit', this.params.performance);
         bind('audio-sensitivity', 'sensitivity', this.params.audio);
         const bindToggle = (id, param) => {
             const el = document.getElementById(id); if (!el) return;
-            el.addEventListener('change', (e) => { this.params.features[param] = e.target.checked; });
+            this.params.features[param] = el.checked;
+            if (id === 'toggle-theme' && el.checked) this.applyTheme();
+            el.addEventListener('change', (e) => {
+                this.params.features[param] = e.target.checked;
+                if (id === 'toggle-theme') this.applyTheme();
+            });
         };
+        bindToggle('toggle-theme', 'lightMode');
         bindToggle('toggle-mouse', 'followMouse');
         bindToggle('toggle-layering', 'layering');
         bindToggle('toggle-wrapping', 'wrapSpace');
@@ -623,12 +872,73 @@ class Simulation {
                 if (act.length) { this.followedBoid = act[Math.floor(Math.random() * act.length)]; e.target.classList.add('active'); e.target.textContent = "Stop Following"; this.controls.enabled = false; }
             }
         };
-        window.toggleSection = (h) => { const c = h.nextElementSibling; const a = h.querySelector('.arrow'); c.classList.toggle('collapsed'); a.textContent = c.classList.contains('collapsed') ? '▼' : '▲'; };
+        window.toggleSection = (h) => { const c = h.nextElementSibling; const a = h.querySelector('.arrow'); c.classList.toggle('collapsed'); h.classList.toggle('collapsed'); a.textContent = c.classList.contains('collapsed') ? 'expand_more' : 'expand_less'; };
 
-        window.addEventListener('mousemove', (e) => {
+        // Mobile drawer toggles: panels slide in on demand instead of always
+        // occupying screen space, since two 280px-wide panels don't fit a phone.
+        const leftPanel = document.getElementById('left-panel');
+        const rightPanel = document.getElementById('right-panel');
+        const backdrop = document.getElementById('mobile-backdrop');
+        const toggleLeftBtn = document.getElementById('toggle-left-panel');
+        const toggleRightBtn = document.getElementById('toggle-right-panel');
+        const closeMobilePanels = () => {
+            leftPanel.classList.remove('open');
+            rightPanel.classList.remove('open');
+            backdrop.classList.remove('visible');
+            setTimeout(() => { if (!backdrop.classList.contains('visible')) backdrop.style.display = 'none'; }, 300);
+        };
+        const openMobilePanel = (panel) => {
+            leftPanel.classList.remove('open');
+            rightPanel.classList.remove('open');
+            panel.classList.add('open');
+            backdrop.style.display = 'block';
+            requestAnimationFrame(() => backdrop.classList.add('visible'));
+        };
+        if (toggleLeftBtn) toggleLeftBtn.onclick = () => {
+            leftPanel.classList.contains('open') ? closeMobilePanels() : openMobilePanel(leftPanel);
+        };
+        if (toggleRightBtn) toggleRightBtn.onclick = () => {
+            rightPanel.classList.contains('open') ? closeMobilePanels() : openMobilePanel(rightPanel);
+        };
+        if (backdrop) backdrop.onclick = closeMobilePanels;
+
+        // Play shortcut: opens the controls panel and jumps straight to the
+        // Flocking Rules section (expanding it if it's collapsed).
+        const flockingBtn = document.getElementById('shortcut-flocking');
+        const flockingSection = document.getElementById('flocking-rules-section');
+        // Matches the CSS drawer breakpoint — only slide the drawer in /
+        // dim the backdrop when that layout is actually active, otherwise
+        // the desktop view (where panels are always visible) would get an
+        // unwanted full-screen backdrop.
+        const isMobileLayout = () => window.matchMedia('(max-width: 768px), (pointer: coarse) and (max-width: 1024px)').matches;
+        if (flockingBtn && flockingSection) {
+            flockingBtn.onclick = () => {
+                if (isMobileLayout()) openMobilePanel(leftPanel);
+                const header = flockingSection.querySelector('.control-header');
+                const content = flockingSection.querySelector('.control-content');
+                const arrow = header.querySelector('.arrow');
+                header.classList.remove('collapsed');
+                content.classList.remove('collapsed');
+                if (arrow) arrow.textContent = '▲';
+                header.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            };
+        }
+
+        this.applyMobileDefaults();
+
+        // The "Boids Simulation" title fades out once, 5s after load, leaving
+        // a clean view of the simulation. Panels are unaffected by this.
+        setTimeout(() => {
+            const title = document.getElementById('title');
+            if (title) title.classList.add('faded');
+        }, 5000);
+
+        // Pointer Events unify mouse, touch and pen — this drives both the "Mouse
+        // Interaction" boid steering and the click/tap shockwave on mobile.
+        window.addEventListener('pointermove', (e) => {
             this.mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
             this.mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-        });
+        }, { passive: true });
 
         window.addEventListener('keydown', (e) => {
             if (e.key.toLowerCase() === 'h') {
@@ -636,7 +946,10 @@ class Simulation {
                 const title = document.getElementById('title');
                 const isHidden = panels[0].style.display === 'none';
                 panels.forEach(p => p.style.display = isHidden ? 'flex' : 'none');
-                if (title) title.style.display = isHidden ? 'block' : 'none';
+                if (title) {
+                    title.style.display = isHidden ? 'block' : 'none';
+                    if (isHidden) title.classList.remove('faded'); // manual show overrides the 5s auto-fade
+                }
             }
         });
 
@@ -665,8 +978,7 @@ class Simulation {
     }
 
     animate() {
-        requestAnimationFrame(() => this.animate());
-        
+
         const now = performance.now();
         const frameDuration = 1000 / this.params.performance.fpsLimit;
         const delta = now - this.lastFrameTime;
@@ -678,28 +990,33 @@ class Simulation {
 
         // Update Mouse 3D Position
         this.raycaster.setFromCamera(this.mouse, this.camera);
-        const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-        this.raycaster.ray.intersectPlane(plane, this.mouse3D);
+        this.raycaster.ray.intersectPlane(this.mousePlane, this.mouse3D);
 
         let audioReact = 0;
         if (this.params.audio.enabled && this.analyser) {
             this.analyser.getByteFrequencyData(this.dataArray);
-            let sum = 0;
-            for (let i = 0; i < this.dataArray.length; i++) sum += this.dataArray[i];
-            const avg = sum / this.dataArray.length;
+            let avg = 0;
+            for (let i = 0; i < this.dataArray.length; i++) avg += this.dataArray[i];
+            avg /= this.dataArray.length;
             audioReact = (avg / 255.0) * this.params.audio.sensitivity;
             if (this.bloomPass) {
-                this.bloomPass.strength = THREE.MathUtils.lerp(this.bloomPass.strength, this.params.lighting.bloom + audioReact * 3.0, 0.1);
+                const isLight = this.params.features.lightMode;
+                const targetBloom = (this.params.lighting.bloom + audioReact * 3.0) * (isLight ? 0.6 : 1);
+                this.bloomPass.strength = THREE.MathUtils.lerp(this.bloomPass.strength, targetBloom, 0.1);
             }
         }
 
-        const currentParams = {
-            ...this.params,
-            speed: {
-                min: (this.params.speed.min + audioReact * 2.0) * this.params.performance.simSpeed,
-                max: (this.params.speed.max + audioReact * 6.0) * this.params.performance.simSpeed
-            }
-        };
+        // Reused object: refresh top-level fields from params (shallow, same
+        // as the old spread) and overwrite speed in place — no per-frame
+        // object allocation in the hot path. The speed sub-object is kept
+        // as our own buffer (not this.params.speed) so mutating it here
+        // never corrupts the UI-bound base params.
+        const speedBuf = this.frameParams.speed;
+        Object.assign(this.frameParams, this.params);
+        this.frameParams.speed = speedBuf;
+        speedBuf.min = (this.params.speed.min + audioReact * 2.0) * this.params.performance.simSpeed;
+        speedBuf.max = (this.params.speed.max + audioReact * 6.0) * this.params.performance.simSpeed;
+        const currentParams = this.frameParams;
 
         // Animate Marine Snow
         if (this.envMeshes.snow) {
@@ -707,19 +1024,22 @@ class Simulation {
             this.envMeshes.snow.rotation.x += dt * 0.02;
         }
 
+        for (const k in this.trailSystems) this.trailSystems[k].mesh.visible = currentParams.features.trails;
+
         if (!this.isPaused) {
             this.grid.clear(); for (let i = 0; i < this.boids.length; i++) if (this.boids[i].active) this.grid.add(this.boids[i]);
             for (let i = 0; i < this.boids.length; i++) {
                 const b = this.boids[i]; if (!b.active) continue;
-                const res = b.applyRules(this.grid.getNearby(b.position, 45), this.predators, this.foodSources, this.obstacles, currentParams, this.mouse3D);
+                const res = b.applyRules(this.grid.getNearby(b.position, this.neighborRadius), this.predators, this.foodSources, this.obstacles, currentParams, this.mouse3D);
                 if (res && res.consume) { const idx = this.foodSources.indexOf(res.consume); if (idx !== -1) { this.scene.remove(res.consume.mesh); this.foodSources.splice(idx, 1); } }
                 b.update(currentParams, dt);
             }
+            if (currentParams.features.trails) for (const k in this.trailSystems) this.trailSystems[k].commit();
             this.updateInstancedMeshes();
             this.predators.forEach(p => {
                 p.mesh.visible = currentParams.features.predators;
                 if (currentParams.features.predators) {
-                    const caught = p.update(this.boids, currentParams, dt);
+                    const caught = p.update(this.grid, currentParams, dt);
                     if (caught) { caught.active = false; caught.destroy(); }
                 }
             });
@@ -733,11 +1053,22 @@ class Simulation {
             this.camera.position.lerp(_v3.copy(this.followedBoid.position).add(off), 0.1);
             this.camera.lookAt(this.followedBoid.position);
         } else if (this.followedBoid) { this.followedBoid = null; this.controls.enabled = true; document.getElementById('fps-view').classList.remove('active'); document.getElementById('fps-view').textContent = "Follow Boid"; }
-        document.getElementById('fps').textContent = Math.round(1 / (dt / this.params.performance.simSpeed || 0.01));
-        document.getElementById('boidCount').textContent = this.boids.filter(b => b.active).length;
+        if (this.fpsEl) this.fpsEl.textContent = Math.round(1 / (dt / this.params.performance.simSpeed || 0.01));
+        if (this.boidCountEl) {
+            let activeCount = 0;
+            for (let i = 0; i < this.boids.length; i++) if (this.boids[i].active) activeCount++;
+            this.boidCountEl.textContent = activeCount;
+        }
         this.controls.update();
         if (this.composer) this.composer.render(); else this.renderer.render(this.scene, this.camera);
     }
 }
 
-window.addEventListener('load', () => new Simulation());
+window.addEventListener('load', () => {
+    // Delay initialization slightly to ensure all stylesheets are applied and 
+    // the initial layout/paint is fully complete, preventing the browser from
+    // warning about forced synchronous layout.
+    setTimeout(() => {
+        window.__sim = new Simulation();
+    }, 50);
+});

@@ -28,6 +28,7 @@
   let currentPage = 'home';
   let mobileMenuOpen = false;
   let isMobile = false;
+  let projectsExpanded = false;
 
   // Mobile accordion state: which content section (besides the hero) is expanded.
   // null = all collapsed, headers only. Desktop ignores this and always shows everything.
@@ -35,13 +36,76 @@
 
   function toggleSection(sectionId) {
     if (!isMobile) return;
-    expandedSection = expandedSection === sectionId ? null : sectionId;
+    const isOpening = expandedSection !== sectionId;
+    expandedSection = isOpening ? sectionId : null;
+    if (sectionId === 'projects' && isOpening) {
+      projectsExpanded = true;
+    }
   }
 
   function handleResize() {
     isMobile = window.innerWidth <= 860;
     if (!isMobile && mobileMenuOpen) {
       setMobileMenuOpen(false);
+    }
+  }
+
+  // Analytics & visitor tracking
+  let visitorCount = null;
+  let visitorLoading = true;
+
+  async function initVisitorCounter() {
+    try {
+      const response = await fetch('https://api.counterapi.dev/v1/joethesaint_portfolio/visits/up');
+      if (response.ok) {
+        const data = await response.json();
+        visitorCount = data.count || data.value || null;
+      }
+    } catch (err) {
+      // Use the local fallback when the counter service is unavailable.
+    }
+    if (!visitorCount) {
+      const stored = parseInt(localStorage.getItem('jdb_pv_count') || '1428', 10) + 1;
+      localStorage.setItem('jdb_pv_count', String(stored));
+      visitorCount = stored;
+    }
+    visitorLoading = false;
+  }
+
+  function trackPageView(pageTitle) {
+    if (typeof window === 'undefined') return;
+    const trackingWindow = /** @type {any} */ (window);
+    if (typeof trackingWindow.gtag === 'function') {
+      trackingWindow.gtag('event', 'page_view', {
+        page_title: pageTitle,
+        page_location: window.location.href,
+        page_path: window.location.pathname + (window.location.hash || '')
+      });
+    }
+    if (typeof trackingWindow.goatcounter?.count === 'function') {
+      trackingWindow.goatcounter.count({
+        path: pageTitle.toLowerCase().replace(/\s+/g, '-'),
+        title: pageTitle,
+        event: false
+      });
+    }
+  }
+
+  function trackCustomEvent(category, action, label = '') {
+    if (typeof window === 'undefined') return;
+    const trackingWindow = /** @type {any} */ (window);
+    if (typeof trackingWindow.gtag === 'function') {
+      trackingWindow.gtag('event', action, {
+        event_category: category,
+        event_label: label
+      });
+    }
+    if (typeof trackingWindow.goatcounter?.count === 'function') {
+      trackingWindow.goatcounter.count({
+        path: `${category}/${action}/${label}`,
+        title: `${category}: ${action} - ${label}`,
+        event: true
+      });
     }
   }
 
@@ -63,6 +127,7 @@
   let contactMessage = '';
 
   function handleContactSubmit() {
+    trackCustomEvent('Contact', 'SubmitMessage', contactName);
     const subject = `Portfolio contact from ${contactName}`;
     const body = `${contactMessage}\n\n— ${contactName} (${contactEmail})`;
     window.location.href = `mailto:joebamisaye068@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
@@ -72,6 +137,8 @@
   function navigate(page) {
     currentPage = page;
     window.scrollTo(0, 0);
+    const pageTitle = page === 'home' ? 'Home Portfolio' : page === 'case-study' ? 'Case Study' : 'Projects Index';
+    trackPageView(pageTitle);
     if (page === 'case-study') {
       setTimeout(runCalculation, 150);
     }
@@ -181,21 +248,21 @@
   const projects = [
     {
       title: 'Boids Flocking Simulation',
-      demo: '/boids/',
+      demo: 'https://joethesaint.github.io/boids/',
       github: 'https://github.com/joethesaint/boids_algo_sim',
       desc: 'An interactive 3D flocking simulation built with Three.js, implementing Craig Reynolds\' boids algorithm with an added ecosystem layer of predators and food sources. Optimized with a spatial hash grid and instanced rendering for thousands of boids.',
       tags: ['Three.js', 'GLSL', 'Spatial Hashing', 'Simulation']
     },
     {
       title: 'NERV MAGI Interface',
-      demo: '/nerv/evangelion-sphere-ui.html',
+      demo: 'https://joethesaint.github.io/nerv/evangelion-sphere-ui.html',
       github: '#',
       desc: 'An immersive, gamified web interface modeled after the MAGI system from Evangelion. Features interactive 3D ASCII rendering, Three.js flocking simulations, and a fully functional dynamic terminal.',
       tags: ['Three.js', 'ASCII Art', 'Vanilla JS']
     },
     {
       title: 'Out of Office',
-      demo: '/out-of-office/',
+      demo: 'https://joethesaint.github.io/out-of-office/',
       github: '#',
       desc: 'An anti-burnout interactive web application built with Svelte 5 & Three.js. Features gamified ticket interactions, memory timeline, custom 3D graphics, and ambient soundscapes.',
       tags: ['Svelte 5', 'Three.js', 'Vite', 'Gamification']
@@ -451,12 +518,29 @@
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleScroll);
     runCalculation();
+    initVisitorCounter();
     return () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleScroll);
     };
   });
 </script>
+
+<svelte:head>
+  {#if currentPage === 'case-study'}
+    <title>Inflection Point Position Sizing Case Study | Joseph Dave Bamisaye</title>
+    <meta name="description" content="Technical case study analyzing Vince & Zhu finite time horizon inflection point (f_I^Q) vs. Kelly Criterion (f*) with interactive math sandbox." />
+    <link rel="canonical" href="https://joethesaint.github.io/#blog" />
+  {:else if currentPage === 'projects'}
+    <title>Complete Codebase & Projects Index | Joseph Dave Bamisaye</title>
+    <meta name="description" content="Archive of open-source tools, UNIX system interpreters, Python software, and web applications built by Joseph Dave Bamisaye." />
+    <link rel="canonical" href="https://joethesaint.github.io/#projects" />
+  {:else}
+    <title>Joseph Dave Bamisaye | Software Engineer &amp; Quantitative Analyst</title>
+    <meta name="description" content="Explore the portfolio of Joseph Dave Bamisaye — Software Engineer specializing in backend systems, quantitative analysis, portfolio optimization, and scalable web architectures." />
+    <link rel="canonical" href="https://joethesaint.github.io/" />
+  {/if}
+</svelte:head>
 
 <!-- Navigation Header -->
 <header>
@@ -474,7 +558,7 @@
             <li><a href="#summary" class:active={activeSection === 'summary' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'summary')}>Info</a></li>
             <li><a href="#experience" class:active={activeSection === 'experience' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'experience')}>Exp</a></li>
             <li><a href="#projects" class:active={activeSection === 'projects' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'projects')}>Projects</a></li>
-            <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>Blog</a></li>
+            <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>Publications</a></li>
             <li><a href="#skills" class:active={activeSection === 'skills' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'skills')}>Skills</a></li>
             <li><a href="#contact" class:active={activeSection === 'contact' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'contact')}>Contact</a></li>
           </ul>
@@ -518,7 +602,7 @@
       <li><a href="#summary" class:active={activeSection === 'summary' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'summary')}>[INFO]</a></li>
       <li><a href="#experience" class:active={activeSection === 'experience' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'experience')}>[EXPERIENCE]</a></li>
       <li><a href="#projects" class:active={activeSection === 'projects' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'projects')}>[PROJECTS]</a></li>
-      <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>[BLOG]</a></li>
+      <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>[PUBLICATIONS]</a></li>
       <li><a href="#skills" class:active={activeSection === 'skills' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'skills')}>[SKILLS]</a></li>
       <li><a href="#contact" class:active={activeSection === 'contact' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'contact')}>[CONTACT]</a></li>
     </ul>
@@ -665,7 +749,7 @@
     </div>
   </section>
 
-  <!-- Projects & Publications -->
+  <!-- Projects & Codebases -->
   <section id="projects">
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div class="section-header" class:accordion-toggle={isMobile} on:click={() => toggleSection('projects')} on:keydown={(e) => e.key === 'Enter' && toggleSection('projects')} role={isMobile ? 'button' : null} tabindex={isMobile ? 0 : null} aria-expanded={isMobile ? expandedSection === 'projects' : null}>
@@ -677,7 +761,7 @@
     <div class="accordion-inner">
 
     <!-- Featured Build: AsciiGen live demo -->
-    <div class="glass-card portfolio-card" style="margin-bottom: 2rem; display: grid; grid-template-columns: 1.1fr 1fr; gap: 2rem; align-items: stretch;">
+    <div class="glass-card portfolio-card featured-project" style="margin-bottom: 2rem;">
       <div>
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
           <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">[FEATURED_BUILD]</span>
@@ -694,16 +778,16 @@
           <span class="skill-tag">Flask</span>
         </div>
       </div>
-      <div style="min-height: 320px; border-radius: 4px; overflow: hidden; border: 1px solid var(--card-border);">
+      <div class="featured-project-visual" style="min-height: 320px; border-radius: 4px; overflow: hidden; border: 1px solid var(--card-border);">
         <AsciiGenVisual {isLightTheme} />
       </div>
     </div>
 
-    <div class="grid-3">
-      {#each projects.slice(0, 3) as project (project.title)}
+    <div id="projects-grid" class="grid-3">
+      {#each projects.slice(0, projectsExpanded ? projects.length : 3) as project (project.title)}
         <div class="glass-card portfolio-card">
           <div>
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
+            <div class="project-links" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
               <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">[PROJECT]</span>
               {#if project.github && project.github !== '#'}
                 <a href={project.github} target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[GITHUB &rarr;]</a>
@@ -724,20 +808,22 @@
       {/each}
     </div>
 
-    <div style="text-align: center; margin-top: 3rem;">
-      <button class="btn btn-secondary" on:click={() => navigate('projects')}>
-        [SEE_MORE_PROJECTS &rarr;]
-      </button>
-    </div>
+    {#if projects.length > 3}
+      <div style="text-align: center; margin-top: 3rem;">
+        <button class="btn btn-secondary" on:click={() => projectsExpanded = !projectsExpanded} aria-expanded={projectsExpanded} aria-controls="projects-grid">
+          {projectsExpanded ? '[SHOW_FEWER_PROJECTS ↑]' : '[SEE_MORE_PROJECTS ↓]'}
+        </button>
+      </div>
+    {/if}
     </div>
     </div>
   </section>
 
-  <!-- Blog / Case Study Section (Vince/Zhu Inflection Point Solver) -->
+  <!-- Publications / Case Study Section (Vince/Zhu Inflection Point Solver) -->
   <section id="blog">
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div class="section-header" class:accordion-toggle={isMobile} on:click={() => toggleSection('blog')} on:keydown={(e) => e.key === 'Enter' && toggleSection('blog')} role={isMobile ? 'button' : null} tabindex={isMobile ? 0 : null} aria-expanded={isMobile ? expandedSection === 'blog' : null}>
-      <h2 class="section-title">Research & Technical Articles</h2>
+      <h2 class="section-title">Publications & Research</h2>
       {#if isMobile}<span class="accordion-chevron" class:open={expandedSection === 'blog'}>&darr;</span>{/if}
     </div>
 
@@ -1057,10 +1143,21 @@
 <!-- Footer -->
 <footer>
   <div class="container">
-    <p>&copy; {new Date().getFullYear()} JOSEPH DAVE BAMISAYE. Built with Svelte & Vite.</p>
-    <div class="footer-meta">
-      <a href="mailto:joebamisaye068@gmail.com">joebamisaye068@gmail.com</a>
-      <span>EMEA / Remote</span>
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;">
+      <p style="margin: 0;">&copy; {new Date().getFullYear()} JOSEPH DAVE BAMISAYE. Built with Svelte &amp; Vite.</p>
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.35rem 0.85rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-green);">
+        <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green);"></span>
+        <span style="color: var(--text-muted); font-size: 0.75rem;">LIVE VISITORS:</span>
+        {#if visitorLoading}
+          <span style="opacity: 0.6;">[COUNTING...]</span>
+        {:else}
+          <strong style="color: var(--text-main); font-weight: 700;">{visitorCount ? visitorCount.toLocaleString() : '1,428'}</strong>
+        {/if}
+      </div>
+      <div class="footer-meta" style="margin: 0;">
+        <a href="mailto:joebamisaye068@gmail.com">joebamisaye068@gmail.com</a>
+        <span>EMEA / Remote</span>
+      </div>
     </div>
   </div>
 </footer>

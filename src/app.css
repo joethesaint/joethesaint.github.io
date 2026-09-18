@@ -867,6 +867,24 @@ input[type="range"].calc-input::-moz-range-thumb:hover {
     font-size: 0.7rem;
     padding: 0.35rem 0.6rem;
   }
+
+  /* Let long accordion sections flow naturally on phones. The grid-row
+     animation can otherwise clip content after a tall featured card. */
+  .accordion-body {
+    display: block;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .accordion-body.open {
+    max-height: 100000px;
+    overflow: visible;
+  }
+
+  .accordion-body.open .accordion-inner {
+    overflow: visible;
+  }
 }
 
 @media (max-width: 640px) {
@@ -925,6 +943,20 @@ input[type="range"].calc-input::-moz-range-thumb:hover {
 
   .section-header {
     margin-bottom: 2rem;
+  }
+
+  .featured-project {
+    grid-template-columns: 1fr !important;
+    gap: 1.25rem !important;
+  }
+
+  .featured-project-visual {
+    min-height: 220px !important;
+  }
+
+  .project-links {
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
   .experience-list {
@@ -1005,6 +1037,24 @@ input[type="range"].calc-input::-moz-range-thumb:hover {
 
 .portfolio-card.secondary {
   background: var(--bg-secondary);
+}
+
+/* Featured project card — override the flex from .portfolio-card so the inline grid works */
+.portfolio-card.featured-project {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 2rem;
+  align-items: stretch;
+}
+
+@media (max-width: 768px) {
+  .portfolio-card.featured-project {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-card.featured-project .featured-project-visual {
+    min-height: 220px !important;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1164,4 +1214,3 @@ a, button {
 .mobile-menu-toggle:active span {
   background-color: var(--accent-green);
 }
-

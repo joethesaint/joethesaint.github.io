@@ -17,4 +17,9 @@ export default [
   {
     ignores: ['dist/', 'node_modules/', 'public/'],
   },
+  {
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^_', argsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
+    },
+  },
 ]

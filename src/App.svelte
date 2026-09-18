@@ -61,7 +61,7 @@
         const data = await response.json();
         visitorCount = data.count || data.value || null;
       }
-    } catch (err) {
+    } catch (_err) {
       // Use the local fallback when the counter service is unavailable.
     }
     if (!visitorCount) {
@@ -761,8 +761,8 @@
     <div class="accordion-inner">
 
     <!-- Featured Build: AsciiGen live demo -->
-    <div class="glass-card portfolio-card featured-project" style="margin-bottom: 2rem;">
-      <div>
+    <div class="glass-card featured-project" style="margin-bottom: 2rem; display: grid; grid-template-columns: 1.1fr 1fr; gap: 2rem; align-items: stretch;">
+      <div style="display: flex; flex-direction: column; height: 100%;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
           <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">[FEATURED_BUILD]</span>
           <a href="https://github.com/joethesaint/AsciiGen" target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[GITHUB &rarr;]</a>

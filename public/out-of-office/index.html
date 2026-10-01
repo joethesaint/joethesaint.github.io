@@ -2,6 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <script>
+      (() => {
+        let theme = 'system';
+        try { theme = localStorage.getItem('ooo-theme') || 'system'; } catch {}
+        document.documentElement.dataset.theme = theme === 'dark' || (theme !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+      })();
+    </script>
     <link rel="icon" type="image/svg+xml" href="/out-of-office/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Out of Office Lagos — Auto-reply for real life</title>
@@ -16,8 +23,8 @@
     <meta name="twitter:title" content="Out of Office Lagos" />
     <meta name="twitter:description" content="Auto-reply for real life. Leave yellow Lagos, enter blue Lagos." />
     <meta name="twitter:image" content="/out-of-office/og-image.jpg" />
-    <script type="module" crossorigin src="/out-of-office/assets/index-Dlxljttc.js"></script>
-    <link rel="stylesheet" crossorigin href="/out-of-office/assets/index-x1L4VOp7.css">
+    <script type="module" crossorigin src="/out-of-office/assets/index-Ak_q33NZ.js"></script>
+    <link rel="stylesheet" crossorigin href="/out-of-office/assets/index-Cw48Uwag.css">
   </head>
   <body>
     <div id="app"></div>

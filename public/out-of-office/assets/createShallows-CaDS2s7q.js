@@ -12,6 +12,10 @@ import{A as e,C as t,D as n,E as r,F as i,I as a,M as o,N as s,O as c,P as l,S a
       vec3 d = normalize(vDir);
       float t = clamp(d.y, 0.0, 1.0);
       vec3 col = mix(uHorizonColor, vec3(0.22, 0.52, 0.76), pow(t, 0.7)) * 1.15;
+      // A restrained warm band gives the water the late-day atmosphere of the
+      // reference scenes without replacing Out of Office's cool palette.
+      float horizonGlow = pow(1.0 - t, 7.0) * 0.14;
+      col += vec3(1.0, 0.55, 0.30) * horizonGlow;
       col += vec3(1.0, 0.96, 0.88) * pow(max(dot(d, uSunDir), 0.0), 380.0) * 1.2;
       col += vec3(1.0, 0.90, 0.78) * pow(max(dot(d, uSunDir), 0.0), 12.0) * 0.18;
       gl_FragColor = vec4(col, 1.0);
@@ -177,6 +181,8 @@ attribute float aPhase;`).replace(`#include <begin_vertex>`,`#include <begin_ver
   vec3 skyColor(vec3 d) {
     float t = clamp(d.y, 0.0, 1.0);
     vec3 col = mix(uHorizonColor, vec3(0.22, 0.52, 0.76), pow(t, 0.7)) * 1.15;
+    float horizonGlow = pow(1.0 - t, 7.0) * 0.14;
+    col += vec3(1.0, 0.55, 0.30) * horizonGlow;
     col += vec3(1.0, 0.96, 0.88) * pow(max(dot(d, uSunDir), 0.0), 380.0) * 1.2;
     col += vec3(1.0, 0.90, 0.78) * pow(max(dot(d, uSunDir), 0.0), 12.0) * 0.18;
     return col;

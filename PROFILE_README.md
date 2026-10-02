@@ -1,4 +1,4 @@
-# Hi there, I'm Joseph Dave Bamisaye 👋 (joethesaint)
+# Hi there, I'm Joseph Taiwo Bamisaye 👋 (joethesaint)
 
 <p align="center">
   <img src="https://komarev.com/normal-counter/?username=joethesaint&style=flat-square&color=blue" alt="Profile views" />

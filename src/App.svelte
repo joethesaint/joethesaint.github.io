@@ -528,16 +528,16 @@
 
 <svelte:head>
   {#if currentPage === 'case-study'}
-    <title>Inflection Point Position Sizing Case Study | Joseph Dave Bamisaye</title>
+    <title>Inflection Point Position Sizing Case Study | Joseph Taiwo Bamisaye</title>
     <meta name="description" content="Technical case study analyzing Vince & Zhu finite time horizon inflection point (f_I^Q) vs. Kelly Criterion (f*) with interactive math sandbox." />
     <link rel="canonical" href="https://joethesaint.github.io/#blog" />
   {:else if currentPage === 'projects'}
-    <title>Complete Codebase & Projects Index | Joseph Dave Bamisaye</title>
-    <meta name="description" content="Archive of open-source tools, UNIX system interpreters, Python software, and web applications built by Joseph Dave Bamisaye." />
+    <title>Complete Codebase & Projects Index | Joseph Taiwo Bamisaye</title>
+    <meta name="description" content="Archive of open-source tools, UNIX system interpreters, Python software, and web applications built by Joseph Taiwo Bamisaye." />
     <link rel="canonical" href="https://joethesaint.github.io/#projects" />
   {:else}
-    <title>Joseph Dave Bamisaye | Software Engineer &amp; Quantitative Analyst</title>
-    <meta name="description" content="Explore the portfolio of Joseph Dave Bamisaye — Software Engineer specializing in backend systems, quantitative analysis, portfolio optimization, and scalable web architectures." />
+    <title>Joseph Taiwo Bamisaye | Software Engineer &amp; Quantitative Analyst</title>
+    <meta name="description" content="Explore the portfolio of Joseph Taiwo Bamisaye — Software Engineer specializing in backend systems, quantitative analysis, portfolio optimization, and scalable web architectures." />
     <link rel="canonical" href="https://joethesaint.github.io/" />
   {/if}
 </svelte:head>
@@ -627,7 +627,7 @@
     <BoidsVisual {isLightTheme} />
     <div class="hero-content">
       <span class="hero-subtitle">SYSTEM.STATUS = "ACTIVE"</span>
-      <h1 class="hero-title">Joseph Dave <span class="accent">Bamisaye</span></h1>
+      <h1 class="hero-title">Joseph Taiwo <span class="accent">Bamisaye</span></h1>
       <p class="hero-desc">
         Confident and results-driven Software Engineer with a Bachelor’s degree in Agricultural and Environmental Engineering. Specialized in sustainable development, green energy, and environmental innovation. Passionate about merging agricultural and environmental engineering with software engineering to create solutions that address the spectrum of sustainability challenges.
       </p>
@@ -647,7 +647,7 @@
         </div>
         <div class="meta-item" style="display: flex; align-items: center; gap: 0.5rem;">
           <svg viewBox="0 0 24 24" fill="currentColor" style="width: 16px; height: 16px; color: var(--accent-green);"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z"/></svg>
-          <a href="https://linkedin.com/in/joseph-bamisaye" target="_blank" rel="noreferrer">Joseph Dave Bamisaye</a>
+          <a href="https://linkedin.com/in/joseph-bamisaye" target="_blank" rel="noreferrer">Joseph Taiwo Bamisaye</a>
         </div>
       </div>
       
@@ -1144,7 +1144,7 @@
 <footer>
   <div class="container">
     <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;">
-      <p style="margin: 0;">&copy; {new Date().getFullYear()} JOSEPH DAVE BAMISAYE. Built with Svelte &amp; Vite.</p>
+      <p style="margin: 0;">&copy; {new Date().getFullYear()} JOSEPH TAIWO BAMISAYE. Built with Svelte &amp; Vite.</p>
       <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.35rem 0.85rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-green);">
         <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green);"></span>
         <span style="color: var(--text-muted); font-size: 0.75rem;">LIVE VISITORS:</span>

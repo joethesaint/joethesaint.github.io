@@ -765,17 +765,20 @@
       <div style="display: flex; flex-direction: column; height: 100%;">
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
           <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">[FEATURED_BUILD]</span>
-          <a href="https://github.com/joethesaint/AsciiGen" target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[GITHUB &rarr;]</a>
+          <span style="display: flex; gap: 0.75rem;">
+            <a href="https://joethesaint.github.io/AsciiGen/" target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[LIVE DEMO &rarr;]</a>
+            <a href="https://github.com/joethesaint/AsciiGen" target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[GITHUB &rarr;]</a>
+          </span>
         </div>
         <h3 style="font-size: 1.15rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--text-main);">AsciiGen</h3>
         <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.5rem;">
-          A creative coding suite that turns static media into ASCII art and volumetric point clouds. The panel to the right renders a live 3D bust straight through an ASCII effect &mdash; the same idea AsciiGen's PointGen engine applies to any image: sculpt structure out of characters instead of pixels.
+          A browser engine that turns images and 3D models into live ASCII art or a GPU particle cloud &mdash; a true character grid that holds from any camera angle, and particles with real spring physics you can fling, morph and trail. It runs on the visitor's own device and tunes its quality to their hardware. The panel to the right is a small taste; the live demo is the full engine.
         </p>
         <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: auto;">
           <span class="skill-tag">Three.js</span>
           <span class="skill-tag">GLSL</span>
-          <span class="skill-tag">Python</span>
-          <span class="skill-tag">Flask</span>
+          <span class="skill-tag">WebGL</span>
+          <span class="skill-tag">GPGPU Particles</span>
         </div>
       </div>
       <div class="featured-project-visual" style="min-height: 320px; border-radius: 4px; overflow: hidden; border: 1px solid var(--card-border);">

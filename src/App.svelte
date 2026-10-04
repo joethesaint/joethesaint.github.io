@@ -254,6 +254,13 @@
       tags: ['Three.js', 'GLSL', 'Spatial Hashing', 'Simulation']
     },
     {
+      title: 'Biogas Digester Viewer',
+      demo: 'https://joethesaint.github.io/biogas/',
+      github: '#',
+      desc: 'My B.Eng. biogas digester project (FUTA) rebuilt as an interactive Three.js assembly: isometric CAD views, exploded parts, gas-flow animation and keyboard-accessible component inspection.',
+      tags: ['Three.js', 'Agricultural Eng.', 'Vanilla JS']
+    },
+    {
       title: 'NERV MAGI Interface',
       demo: 'https://joethesaint.github.io/nerv/evangelion-sphere-ui.html',
       github: '#',

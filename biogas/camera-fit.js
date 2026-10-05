@@ -1,5 +1,5 @@
 import * as T from 'three';
-export function frameOrthographic(camera,bounds,width,height,{top=20,bottom=36,padding=1.04}={}){
+export function frameOrthographic(camera,bounds,width,height,{top=96,bottom=112,padding=1.04}={}){
  if(width<=0||height<=0||bounds.isEmpty())return;
  camera.updateMatrixWorld(true);
  let halfX=0,halfY=0;

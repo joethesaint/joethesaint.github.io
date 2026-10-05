@@ -49,4 +49,4 @@ html,body{height:100%;position:fixed;width:100%;overflow:hidden}.gooey-menu>svg{
 
 .dialoghead>div:first-child{flex:1;min-width:0}.project-links{margin-bottom:16px}
 
-.storage-summary{font-size:11px;line-height:1.5;color:var(--muted);margin:12px 0 8px} #industrialNote{font-size:12px;color:var(--muted);margin:8px 0} #industrialNote summary{min-height:44px;display:flex;align-items:center;cursor:pointer} #industrialNote p{margin:4px 0 10px}
+.storage-summary{font-size:11px;line-height:1.5;color:var(--muted);margin:12px 0 8px}.save-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:8px 0 12px;color:var(--muted);font-size:11px}.save-row button{padding:7px 9px;font-size:11px;white-space:nowrap} #industrialNote{font-size:12px;color:var(--muted);margin:8px 0} #industrialNote summary{min-height:44px;display:flex;align-items:center;cursor:pointer} #industrialNote p{margin:4px 0 10px}

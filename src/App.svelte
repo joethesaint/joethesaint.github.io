@@ -248,7 +248,7 @@
   const projects = [
     {
       title: 'Boids Flocking Simulation',
-      demo: 'https://joethesaint.github.io/boids/',
+      demo: 'https://joethesaint.github.io/boids_algo_sim/',
       github: 'https://github.com/joethesaint/boids_algo_sim',
       desc: 'An interactive 3D flocking simulation built with Three.js, implementing Craig Reynolds\' boids algorithm with an added ecosystem layer of predators and food sources. Optimized with a spatial hash grid and instanced rendering for thousands of boids.',
       tags: ['Three.js', 'GLSL', 'Spatial Hashing', 'Simulation']

@@ -2,7 +2,7 @@ import * as T from '../../../public/biogas/vendor/three.module.js';
 import {OrbitControls} from '../../../public/biogas/vendor/OrbitControls.js';
 const $=id=>document.getElementById(id),state={mode:'stopped',time:0,wire:false},reduced=matchMedia('(prefers-reduced-motion: reduce)');
 const stage=$('stage'),scene=new T.Scene(),camera=new T.OrthographicCamera(-78,78,85,-85,.1,1000);let renderer;
-try{renderer=new T.WebGLRenderer({antialias:true,alpha:true})}catch(e){$('loading').textContent='3D unavailable on this device. The isometric plate and transport controls remain usable.'}
+try{renderer=new T.WebGLRenderer({antialias:true,alpha:true})}catch(_e){$('loading').textContent='3D unavailable on this device. The isometric plate and transport controls remain usable.'}
 const targets=[],moving=[],root=new T.Group();scene.add(root);
 const metal=new T.MeshStandardMaterial({color:'#bfc4c5',metalness:.72,roughness:.36}),black=new T.MeshStandardMaterial({color:'#181c1d',roughness:.65}),white=new T.MeshStandardMaterial({color:'#dce0dd',metalness:.45,roughness:.4}),orange=new T.MeshStandardMaterial({color:'#f75935',roughness:.45});
 function rounded(w,d,h,r){const s=new T.Shape(),x=-w/2,z=-d/2;s.moveTo(x+r,z);s.lineTo(x+w-r,z);s.quadraticCurveTo(x+w,z,x+w,z+r);s.lineTo(x+w,z+d-r);s.quadraticCurveTo(x+w,z+d,x+w-r,z+d);s.lineTo(x+r,z+d);s.quadraticCurveTo(x,z+d,x,z+d-r);s.lineTo(x,z+r);s.quadraticCurveTo(x,z,x+r,z);const bevel=Math.min(.5,h/4);const g=new T.ExtrudeGeometry(s,{depth:h-2*bevel,bevelEnabled:true,bevelThickness:bevel,bevelSize:bevel,bevelSegments:3,curveSegments:16});g.rotateX(-Math.PI/2);return g}
@@ -20,7 +20,7 @@ obj(rounded(29,9,.6,1),black,[-6,16,-40],'Monochrome display','Live simulated tr
 const screen=obj(new T.PlaneGeometry(26.5,7),new T.MeshBasicMaterial({map:screenTex}),[-6,16.7,-40],'Display surface','Shared state updates this display and the SVG plate.');screen.rotation.x=-Math.PI/2;
 for(let i=0;i<7;i++)obj(new T.BoxGeometry(1, .25,4),i===0?orange:white,[14+i*1.9,16.3,-40],'Meter segments','Illustrative VU/indicator details. Values are not measured audio.');
 function textTexture(label){const c=document.createElement('canvas');c.width=128;c.height=64;const g=c.getContext('2d');g.fillStyle='#dce0dd';g.fillRect(0,0,128,64);g.fillStyle='#171b19';g.font='32px monospace';g.textAlign='center';g.textBaseline='middle';g.fillText(label,64,32);const t=new T.CanvasTexture(c);t.colorSpace=T.SRGBColorSpace;return t}
-for(const [x,key,glyph] of [[-20,'rec','●'],[0,'play','▶'],[20,'stop','■']]){const g=new T.Group();g.position.set(x,16,37);root.add(g);const cap=obj(rounded(15,10,2.2,1.5),key==='rec'?orange:white,[0,0,0],key+' transport','Press to change the simulated transport.',key,g);const top=obj(new T.PlaneGeometry(12,7),new T.MeshBasicMaterial({map:textTexture(glyph)}),[0,2.75,0],key+' key','Same handler as the labelled button.',key,g);top.rotation.x=-Math.PI/2;moving.push({key,g,y:16})}
+for(const [x,key,glyph] of [[-20,'rec','●'],[0,'play','▶'],[20,'stop','■']]){const g=new T.Group();g.position.set(x,16,37);root.add(g);const _cap=obj(rounded(15,10,2.2,1.5),key==='rec'?orange:white,[0,0,0],key+' transport','Press to change the simulated transport.',key,g);const top=obj(new T.PlaneGeometry(12,7),new T.MeshBasicMaterial({map:textTexture(glyph)}),[0,2.75,0],key+' key','Same handler as the labelled button.',key,g);top.rotation.x=-Math.PI/2;moving.push({key,g,y:16})}
 for(const [x,label,key] of [[-28,'−','rew'],[28,'+','ff']]){const p=obj(new T.PlaneGeometry(5,5),new T.MeshBasicMaterial({map:textTexture(label)}),[x,16.2,23],label+' face control','Moves the simulated timeline five seconds.',key);p.rotation.x=-Math.PI/2}
 // Side rocker, menu and memo controls, interpreted from product references.
 obj(rounded(3,32,9,1),white,[-35,3,-2],'Left rocker','Upper/lower portions scrub the timeline. In this concept a tap advances five seconds.','ff');
@@ -31,11 +31,11 @@ for(let i=0;i<8;i++)obj(new T.BoxGeometry(.35,4,.8),black,[-34.6,6,34+i*.9],'Spe
 // Three configurable top jacks, USB-C, and rotary power/volume control.
 function jack(x,z,r,name){const tor=obj(new T.TorusGeometry(r,.55,10,32),metal,[x,8,z],name,'Connector representation. Ports are inert in this concept.');const hole=obj(new T.CircleGeometry(r-.45,32),black,[x,8,z+.08*Math.sign(z)],name+' recess','Dark socket recess.');if(z<0){tor.rotation.y=Math.PI;hole.rotation.y=Math.PI}}
 for(const x of [-24,-11,2])jack(x,-48.6,2.6,'Two-way 3.5 mm jack');
-const usb=obj(new T.BoxGeometry(8,3, .6),black,[16,8,-48.7],'USB-C','Reference data/power connector; no hardware connection.');
+const _usb=obj(new T.BoxGeometry(8,3, .6),black,[16,8,-48.7],'USB-C','Reference data/power connector; no hardware connection.');
 const power=obj(new T.CylinderGeometry(3.6,3.6,3,32),black,[28,8,-49.8],'Power / volume dial','Approximate top-edge dial.');power.rotation.x=Math.PI/2;
 jack(-20,48.6,3.8,'Main / headphone output');
 // Rear screws and feet are explicitly approximate rather than internal CAD.
-for(const x of [-28,28])for(const z of [-40,40]){const o=obj(new T.CylinderGeometry(1.6,1.6,.4,16),black,[x,-.75,z],'Rear fastener','Approximate external screw placement.');}
+for(const x of [-28,28])for(const z of [-40,40]){const _o=obj(new T.CylinderGeometry(1.6,1.6,.4,16),black,[x,-.75,z],'Rear fastener','Approximate external screw placement.');}
 scene.add(new T.HemisphereLight('#ffffff','#59666b',2));const light=new T.DirectionalLight('#ffffff',3);light.position.set(-50,120,70);scene.add(light);
 let controls;if(renderer){renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.outputColorSpace=T.SRGBColorSpace;renderer.toneMapping=T.ACESFilmicToneMapping;stage.append(renderer.domElement);$('loading').hidden=true;controls=new OrbitControls(camera,renderer.domElement);controls.enableDamping=true;controls.minZoom=.6;controls.maxZoom=4;controls.target.set(0,8,0)}
 function view(){camera.up.set(0,1,0);const pos={iso:[120,155,145],front:[0,220,.01],side:[220,8,0],back:[0,-220,.01]}[$('view').value];if(['front','back'].includes($('view').value))camera.up.set(0,0,-1);camera.position.set(...pos);camera.lookAt(0,8,0);camera.zoom=1;camera.updateProjectionMatrix();controls?.update()}

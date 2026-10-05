@@ -1,0 +1,8 @@
+import assert from 'node:assert/strict';
+import {createArcPicker} from '../arc-picker.js';
+globalThis.matchMedia=()=>({matches:false});let queue=[];globalThis.requestAnimationFrame=fn=>{queue.push(fn);return queue.length};globalThis.ResizeObserver=class{constructor(fn){this.fn=fn}observe(){this.fn()}};
+const element=()=>({style:{},dataset:{},listeners:{},offsetWidth:80,setAttribute(k,v){this[k]=v},addEventListener(k,v){this.listeners[k]=v},focus(){}});globalThis.document={createElement:element};const root=element();root.clientWidth=360;root.children=[];root.append=b=>root.children.push(b);root.hasPointerCapture=()=>false;root.setPointerCapture=()=>{};
+const changes=[];let picker;picker=createArcPicker(root,[{value:'cad',label:'CAD'},{value:'hairline',label:'Hairline'},{value:'solid',label:'Solid'}],v=>{changes.push(v);picker.set(v)});
+root.children[1].listeners.click({detail:1});assert.deepEqual(changes,['hairline']);let time=0;for(let i=0;i<300&&queue.length;i++){queue.shift()(time+=16)}assert.equal(root.children[1]['aria-checked'],'true');assert.match(root.children[1].style.transform,/translate\(0px,0px\)/);
+const evt=(x)=>({button:0,pointerId:1,clientX:x,clientY:0});root.listeners.pointerdown(evt(200));root.listeners.pointermove(evt(80));assert.deepEqual(changes,['hairline'],'Drag should preview without changing model');root.listeners.pointerup(evt(80));assert.equal(changes.at(-1),'solid');root.children[0].listeners.click({detail:1});assert.equal(changes.at(-1),'solid','Post-drag click must be suppressed');root.children[0].listeners.click({detail:0});assert.equal(changes.at(-1),'cad','Keyboard click must work');
+console.log('Tap centres option, controlled echo, drag commit, ghost click and keyboard PASS');

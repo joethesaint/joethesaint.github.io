@@ -1,0 +1,3 @@
+import {build} from 'esbuild';import {readFileSync,writeFileSync} from 'node:fs';
+const r=await build({entryPoints:['biogas-ui/concepts/tp7/main.js'],bundle:true,alias:{three:process.cwd()+'/public/biogas/vendor/three.module.js'},minify:true,format:'iife',write:false});
+writeFileSync('public/biogas/tp7.html',readFileSync('biogas-ui/concepts/tp7/index.html','utf8').replace('<!-- SCRIPT -->',()=> '<!-- '+readFileSync('biogas-ui/concepts/tp7/ISO-FIGURE-LICENSE.txt','utf8')+'\n'+readFileSync('public/biogas/vendor/THREE-LICENSE.txt','utf8')+' --><script>'+r.outputFiles[0].text.replaceAll('</script','<\\/script')+'</script>'));

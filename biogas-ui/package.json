@@ -1,0 +1,23 @@
+{
+  "name": "biogas-studio",
+  "version": "1.0.0",
+  "description": "Biogas Three.js workspace with React loading and liquid control effects",
+  "scripts": {
+    "build:effects": "node build-effects.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "UNLICENSED",
+  "type": "module",
+  "dependencies": {
+    "liquid-gooey": "^0.2.2",
+    "motion": "^14.0.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "thinking-orbs": "^0.3.2"
+  },
+  "private": true,
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

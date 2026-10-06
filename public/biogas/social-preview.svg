@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">Biogas Design Studio</title>
+  <desc id="description">An interactive biogas engineering assembly by Joseph Bamisaye.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#071d26"/>
+      <stop offset="0.54" stop-color="#123a43"/>
+      <stop offset="1" stop-color="#071116"/>
+    </linearGradient>
+    <linearGradient id="gas" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#d6f79e"/>
+      <stop offset="1" stop-color="#59d4b1"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="14"/></filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#background)"/>
+  <g opacity=".16" fill="none" stroke="#b9f1c5" stroke-width="1">
+    <path d="M0 498C230 381 414 581 644 466S1003 312 1200 395"/>
+    <path d="M0 535C246 417 451 609 678 496S1007 350 1200 428"/>
+    <path d="M768 0v630M864 0v630M960 0v630M1056 0v630M1152 0v630"/>
+  </g>
+  <circle cx="874" cy="301" r="171" fill="#76f2bd" opacity=".14" filter="url(#glow)"/>
+  <g transform="translate(735 142)">
+    <ellipse cx="181" cy="318" rx="235" ry="31" fill="#02090c" opacity=".56"/>
+    <path d="M46 267V164c0-55 44-99 99-99h145c55 0 99 44 99 99v103" fill="#2a5960" stroke="#b9f1c5" stroke-width="5"/>
+    <path d="M61 181c21 27 55 43 91 43h132c38 0 73-17 94-45v89H61z" fill="#173d45"/>
+    <path d="M93 66c10-42 47-70 91-70h69c43 0 81 29 91 70" fill="#1e4b54" stroke="#b9f1c5" stroke-width="5"/>
+    <path d="M217 -29c-25 38-41 53-41 78 0 24 19 43 42 43s42-19 42-43c0-25-18-42-43-78z" fill="url(#gas)"/>
+    <g stroke="#9ce7b7" stroke-width="5" fill="#173d45">
+      <path d="M-5 211h51v76H-5z"/><path d="M389 211h50v76h-50z"/>
+      <path d="M-49 207h44v19h-44z"/><path d="M439 207h49v19h-49z"/>
+    </g>
+    <g fill="#d6f79e"><circle cx="84" cy="130" r="7"/><circle cx="357" cy="130" r="7"/><circle cx="84" cy="266" r="7"/><circle cx="357" cy="266" r="7"/></g>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" fill="#f5fff7">
+    <text x="86" y="107" font-size="22" font-weight="700" letter-spacing="5" fill="#a9e2bd">JOSEPH BAMISAYE · ENGINEERING / CODE</text>
+    <text x="80" y="254" font-size="104" font-weight="800" letter-spacing="-4">BIOGAS</text>
+    <text x="86" y="326" font-size="44" font-weight="500" fill="#d8eee1">Design Studio</text>
+    <path d="M86 364h443" stroke="#84e3b7" stroke-width="3"/>
+    <text x="86" y="417" font-size="27" fill="#c1d8d0">A FUTA engineering project rebuilt</text>
+    <text x="86" y="454" font-size="27" fill="#c1d8d0">as an interactive 3D assembly.</text>
+  </g>
+  <g transform="translate(86 522)">
+    <rect width="184" height="43" rx="21.5" fill="#a9e2bd"/>
+    <text x="24" y="29" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#092329">INTERACTIVE 3D</text>
+  </g>
+</svg>

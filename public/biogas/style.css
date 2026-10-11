@@ -78,3 +78,5 @@ html,body{height:100%;position:fixed;width:100%;overflow:hidden}.gooey-menu>svg{
 .processguide>.single-liquid:has(.processclose){position:absolute;right:7px;top:7px;z-index:1}.processguide>.single-liquid .processclose{position:static}
 
 #compressionQuoteRows input{width:170px;max-width:100%;min-height:44px;padding:8px;border:1px solid var(--line);border-radius:8px;background:#172026;color:var(--ink)}.quote-allowance{display:flex;align-items:center;gap:12px;margin:16px 0}.quote-allowance input{width:72px;min-height:44px;padding:8px;background:#172026;color:var(--ink);border:1px solid var(--line);border-radius:8px}.quote-actions{display:flex;flex-wrap:wrap;gap:8px}#compressionTotal{min-height:40px;color:#a9e2bd;font-weight:600}#styleName{color:#b9c8c0}
+
+#compressionCost td:last-child{min-width:120px}#compressionQuoteRows input{width:140px}

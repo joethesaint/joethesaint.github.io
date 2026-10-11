@@ -6,6 +6,10 @@ on:
       - main
       - master
 
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 

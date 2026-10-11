@@ -1,5 +1,5 @@
 import * as T from 'three';
-import {decoratePart,fastenerRing,detailedValve} from './cad-details.js?v=hairline-equipment-20261012';
+import {decoratePart,fastenerRing,detailedValve} from './cad-details.js?v=hairline-complete-20261012';
 import {buildIndustrial} from './industrial-plant.js';
 import {addCompressionConcept} from './compression-model.js';
 const vec=a=>new T.Vector3(...a);

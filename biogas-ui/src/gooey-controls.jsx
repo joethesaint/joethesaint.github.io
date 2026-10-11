@@ -14,12 +14,13 @@ export function enhanceControls(){
  if(!plain){
   for(const container of document.querySelectorAll('.top-actions,.statebar,.viewbar,.rendercontrols,.designs'))enhance(container,[...container.children],container.classList.contains('designs'));
   for(const button of document.querySelectorAll('button:not([role=radio])')){
-   if(grouped.has(button)||button.closest('.floating-gooey,.liquid-surface'))continue;
+   if(grouped.has(button)||button.closest('.floating-gooey,.liquid-surface,.processguide,dialog'))continue;
    const host=document.createElement('span');host.className='single-liquid';button.before(host);enhance(host,[button]);
   }
  }
  const pressed=new Map();const release=event=>{pressed.get(event.pointerId)?.();pressed.delete(event.pointerId);};document.addEventListener('pointerup',release,{capture:true,signal:events.signal});document.addEventListener('pointercancel',release,{capture:true,signal:events.signal});
  for(const button of document.querySelectorAll('button:not([role=radio])')){
+  if(button.closest('.processguide,dialog'))continue;
   let animation;const target=button.parentElement?.classList.contains('liquid-native')?button.parentElement:button;const spring=scale=>{if(plain)return;animation?.stop();animation=animate(target,{scale},{type:'spring',stiffness:420,damping:24});};
   cleanup.push(()=>animation?.stop());button.addEventListener('pointerdown',event=>{spring(.94);pressed.set(event.pointerId,()=>spring(1));},{signal:events.signal});for(const event of ['pointerup','pointercancel','lostpointercapture','blur'])button.addEventListener(event,()=>spring(1),{signal:events.signal});
  }

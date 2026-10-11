@@ -1,43 +1,43 @@
-# Svelte + Vite
+# Joseph Bamisaye — portfolio and interactive demos
 
-This template should help get you started developing with Svelte in Vite.
+Svelte portfolio with standalone browser projects in `public/`, including the Three.js Biogas Design Studio at `/biogas/`.
 
-## Recommended IDE Setup
+## Local development
 
-[VS Code](https://code.visualstudio.com/) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode).
-
-## Need an official Svelte framework?
-
-Check out [SvelteKit](https://github.com/sveltejs/kit#readme), which is also powered by Vite. Deploy anywhere with its serverless-first approach and adapt to various platforms, with out of the box support for TypeScript, SCSS, and Less, and easily-added support for mdsvex, GraphQL, PostCSS, Tailwind CSS, and more.
-
-## Technical considerations
-
-**Why use this over SvelteKit?**
-
-- It brings its own routing solution which might not be preferable for some users.
-- It is first and foremost a framework that just happens to use Vite under the hood, not a Vite app.
-
-This template contains as little as possible to get started with Vite + Svelte, while taking into account the developer experience with regards to HMR and intellisense. It demonstrates capabilities on par with the other `create-vite` templates and is a good starting point for beginners dipping their toes into a Vite + Svelte project.
-
-Should you later need the extended capabilities and extensibility provided by SvelteKit, the template has been structured similarly to SvelteKit so that it is easy to migrate.
-
-**Why include `.vscode/extensions.json`?**
-
-Other templates indirectly recommend extensions via the README, but this file allows VS Code to prompt the user to install the recommended extension upon opening the project.
-
-**Why enable `checkJs` in the JS template?**
-
-It is likely that most cases of changing variable types in runtime are likely to be accidental, rather than deliberate. This provides advanced typechecking out of the box. Should you like to take advantage of the dynamically-typed nature of JavaScript, it is trivial to change the configuration.
-
-**Why is HMR not preserving my local component state?**
-
-HMR state preservation comes with a number of gotchas! It has been disabled by default in both `svelte-hmr` and `@sveltejs/vite-plugin-svelte` due to its often surprising behavior. You can read the details [here](https://github.com/sveltejs/svelte-hmr/tree/master/packages/svelte-hmr#preservation-of-local-state).
-
-If you have state that's important to retain within a component, consider creating an external store which would not be replaced by HMR.
-
-```js
-// store.js
-// An extremely simple external store
-import { writable } from 'svelte/store'
-export default writable(0)
+```sh
+npm ci
+npm ci --prefix biogas-ui
+npm --prefix biogas-ui run build:effects
+npm run dev
 ```
+
+For the production preview, run `npm run build`, then `npm run preview -- --host 0.0.0.0 --port 4173`. Open `http://127.0.0.1:4173/biogas/` on this device.
+
+## Checks
+
+```sh
+npm run check
+npm run lint
+npm run test:biogas
+npm run build
+npx playwright install chromium
+npm run test:browser
+```
+
+Browser tests require a working Chromium environment; GitHub Actions uses Linux and installs its browser dependencies. Reports and screenshots are uploaded as `biogas-browser-evidence`. Local results live in the ignored `test-results/` and `playwright-report/` folders.
+
+## Biogas structure
+
+- `public/biogas/app.js`: viewer, input and UI state.
+- `model-builder.js` and `compression-model.js`: independent procedural model factories.
+- `model-style.js`, `flow-effects.js`, `thumbnails.js`: appearance, cycle/shader and isolated previews.
+- `process-data.js` and `compression-budget.js`: explanatory routes and quote planning.
+- `biogas-ui/src/`: React/Motion controls. Rebuild `public/biogas/effects.js` after changing these sources.
+- `biogas-ui/STYLE-GUIDE.md`: Hairline defaults and style persistence.
+- `biogas-ui/RELEASE-2026-10-12.md`: current scope, evidence and external engineering inputs.
+
+The viewer is educational. Its geometry, cycle and compression route do not establish equipment dimensions, operating limits or fabrication readiness.
+
+## Publishing
+
+Pushing `main` runs locked dependency installation, control compilation, lint/type checks, model tests, production build and browser checks. A passing run publishes `dist` to `gh-pages`, which GitHub Pages serves at https://joethesaint.github.io/. Newer pushes supersede older pending deployments.

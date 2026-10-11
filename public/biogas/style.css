@@ -88,3 +88,5 @@ html,body{height:100%;position:fixed;width:100%;overflow:hidden}.gooey-menu>svg{
 .processactions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%}.processactions .single-liquid{flex:0 0 auto}.processreferences{flex:1 1 100%}.processreferences summary{min-height:36px;display:flex;align-items:center;cursor:pointer;color:var(--muted);font-size:11px}.processreferences .researchlinks{display:block;margin-top:6px}
 
 @media(max-width:700px){.process-paths>button{flex:0 0 auto}.process-paths{gap:5px}}
+
+@media(min-width:701px){.processcontent{display:grid;grid-template-columns:minmax(0,1fr) 230px;align-items:start}.processtools{width:230px;min-width:0}.processcopy{max-width:none}}

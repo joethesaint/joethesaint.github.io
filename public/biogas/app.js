@@ -1,6 +1,6 @@
-import {setActivity,showLoadingError,disposeEffects} from './effects.js?v=hairline-complete-20261012';
+import {setActivity,showLoadingError,disposeEffects} from './effects.js?v=hairline-complete-20261012-b';
 import {addOutlines,sizeOutlines,addAssemblyGuides} from './cad-outlines.js';
-import {createArcPicker,enhanceControls} from './effects.js?v=hairline-complete-20261012';
+import {createArcPicker,enhanceControls} from './effects.js?v=hairline-complete-20261012-b';
 import {createTapTracker} from './pointer-intent.js';
 
 import * as T from 'three';

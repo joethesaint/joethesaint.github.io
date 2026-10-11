@@ -1,0 +1,18 @@
+export const processPaths={
+ report:[
+  {short:'Feed',title:'Feed preparation',text:'The report feed combines cassava peel, pig excreta and poultry droppings. This step represents mixed feed entering the digester; preparation and loading are not specified.',part:'Slurry inlet',kind:'report'},
+  {short:'Digest',title:'Anaerobic digestion',text:'In the oxygen-free digester, microorganisms break down organic matter. Biogas and residual digestate are produced; this animation does not model yield or retention time.',part:'Digester',kind:'report'},
+  {short:'Filter',title:'Gas treatment',text:'Biogas leaves through the takeoff and passes the report’s three filter housings. Their media and removal performance are unspecified; the animation shows routing only.',part:'Filter 1',kind:'report'},
+  {short:'Store',title:'Gas storage',text:'The report routes gas toward a tyre-tube store. The material, capacity and allowable pressure are unverified; moving particles show a route, not measured flow.',part:'Tyre-tube store',kind:'report'},
+  {short:'Output',title:'Digestate co-product',text:'Digestate is produced alongside biogas during digestion. The report assembly does not show a discharge outlet, so this stage explains the output without inventing a connection.',part:'Digester',kind:'report'}
+ ],
+ cylinder:[
+  {short:'Raw gas',title:'Raw biogas',text:'The current 25 L report model is a small, low-pressure teaching assembly. It does not produce the flow or verified gas quality assumed by a cylinder-filling system. The sequence below is conceptual; pretreatment order depends on the selected upgrader and gas specification.',part:'Digester',kind:'report'},
+  {short:'H₂S',title:'Remove H₂S and particulates',text:'Add a specified pretreatment/guard bed and monitor its media condition. Hydrogen sulphide is toxic and can corrode compressors and storage. The report filter media are unknown; they are not shown as validated scrubbers.',part:'H₂S guard bed',kind:'concept'},
+  {short:'Dry',title:'Cool and knock out water',text:'Raw gas is wet. Cooling and a condensate separator remove bulk liquid water; a suitable dryer then lowers water vapour before upgrading and compression. Drainage and materials need engineering.',part:'Gas dryer',kind:'concept'},
+  {short:'CO₂',title:'Upgrade: separate CO₂',text:'A selected process (for example water scrubbing, adsorption or membranes) enriches methane and rejects CO₂. Selection depends on scale, feed composition, target gas quality, energy and maintenance; no removal efficiency is claimed here.',part:'Membrane upgrader',kind:'concept'},
+  {short:'Check',title:'Verify gas quality',text:'Measure methane/CO₂ composition, H₂S and moisture against the intended use and applicable requirements. The study values are experimental results, not universal fill specifications. Do not send unverified raw biogas to compression.',part:'Gas analyser',kind:'concept'},
+  {short:'Compress',title:'Compress and cool',text:'A purpose-designed, gas-compatible compression train raises pressure in controlled stages, with cooling and condensate management. Compressor, seals, controls and operating limits require qualified selection; this viewer gives no pressure setting or build instructions.',part:'Compressor skid',kind:'concept'},
+  {short:'Cylinder',title:'Rated cylinder storage',text:'Store only upgraded gas in a certified pressure vessel rated for that gas and service, with compatible valves, pressure relief, regulator, inspection and filling procedure. The research examples do not certify this project’s tyre tube, LPG cylinder or any improvised vessel.',part:'Certified cylinder rack',kind:'concept'}
+ ]
+};

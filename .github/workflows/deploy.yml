@@ -11,19 +11,19 @@ permissions:
 
 jobs:
   build-and-deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js ⚙️
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 24
           cache: 'npm'
 
       - name: Install 🔧
-        run: npm install
+        run: npm ci
 
       - name: Type-check ✅
         run: npm run check
@@ -33,6 +33,26 @@ jobs:
 
       - name: Build 🏗️
         run: npm run build
+
+      - name: Biogas model and state checks
+        run: npm run test:biogas
+
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser and shader checks
+        run: npm run test:browser
+        env:
+          CI: true
+
+      - name: Browser evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: biogas-browser-evidence
+          path: |
+            test-results/
+            playwright-report/
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4

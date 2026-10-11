@@ -8,11 +8,14 @@
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./jsconfig.json",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:biogas": "node --test tests/biogas-model.test.mjs && node public/biogas/tests/arc-tap-test.mjs",
+    "test:browser": "playwright test"
   },
   "devDependencies": {
     "@bubblewrap/cli": "^1.25.0",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.64.0",
     "@sveltejs/vite-plugin-svelte": "^7.1.2",
     "@types/three": "^0.185.1",
     "eslint": "^10.6.0",

@@ -27,7 +27,8 @@ export function showLoadingError(message){
  flushSync(()=>loadingRoot.render(<Activity error={message}/>));
 }
 function Dock(){return <><div className="statebar glass" role="group" aria-label="Assembly state"><button data-state="assembled" className="active" aria-pressed="true">Assembled</button><button data-state="exploded" aria-pressed="false">Exploded</button></div><FloatingControls plain={plainControls}/></>;}
-flushSync(()=>createRoot(document.getElementById('dockEffects')).render(<Dock/>));
+const dockRoot=createRoot(document.getElementById('dockEffects'));flushSync(()=>dockRoot.render(<Dock/>));
+export function disposeEffects(){dockRoot.unmount();loadingRoot.unmount();}
 setActivity('connecting','Preparing the model');
 
 export {createArcPicker} from './arc-picker.jsx';

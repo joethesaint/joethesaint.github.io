@@ -15,7 +15,7 @@ export default [
     },
   },
   {
-    ignores: ['dist/', 'node_modules/', 'public/'],
+    ignores: ['dist/', 'node_modules/', 'test-results/', 'playwright-report/', 'public/out-of-office/', 'public/boids/', 'public/nerv/', 'public/biogas/vendor/', 'public/biogas/effects.js'],
   },
   {
     rules: {

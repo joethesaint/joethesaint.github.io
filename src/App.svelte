@@ -1,7 +1,5 @@
 <script>
   import { onMount } from 'svelte';
-  import BoidsVisual from './lib/BoidsVisual.svelte';
-  import AsciiGenVisual from './lib/AsciiGenVisual.svelte';
   import futaLogo from './assets/futa_logo.png';
   import holbertonLogo from './assets/holberton_logo.svg';
 
@@ -631,7 +629,7 @@
   
   <!-- Hero / Summary Section -->
   <section id="summary" class="hero-section" style="position: relative; overflow: hidden;">
-    <BoidsVisual {isLightTheme} />
+    {#await import('./lib/BoidsVisual.svelte') then module}<module.default {isLightTheme} />{/await}
     <div class="hero-content">
       <span class="hero-subtitle">SYSTEM.STATUS = "ACTIVE"</span>
       <h1 class="hero-title">Joseph Taiwo <span class="accent">Bamisaye</span></h1>
@@ -789,7 +787,7 @@
         </div>
       </div>
       <div class="featured-project-visual" style="min-height: 320px; border-radius: 4px; overflow: hidden; border: 1px solid var(--card-border);">
-        <AsciiGenVisual {isLightTheme} />
+        {#await import('./lib/AsciiGenVisual.svelte') then module}<module.default {isLightTheme} />{/await}
       </div>
     </div>
 

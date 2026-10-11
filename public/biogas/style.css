@@ -80,3 +80,7 @@ html,body{height:100%;position:fixed;width:100%;overflow:hidden}.gooey-menu>svg{
 #compressionQuoteRows input{width:170px;max-width:100%;min-height:44px;padding:8px;border:1px solid var(--line);border-radius:8px;background:#172026;color:var(--ink)}.quote-allowance{display:flex;align-items:center;gap:12px;margin:16px 0}.quote-allowance input{width:72px;min-height:44px;padding:8px;background:#172026;color:var(--ink);border:1px solid var(--line);border-radius:8px}.quote-actions{display:flex;flex-wrap:wrap;gap:8px}#compressionTotal{min-height:40px;color:#a9e2bd;font-weight:600}#styleName{color:#b9c8c0}
 
 #compressionCost td:last-child{min-width:120px}#compressionQuoteRows input{width:140px}
+
+/* Keep the model visible above the phone explanation sheet. */
+.processguide{overflow:hidden}.processmain{overflow:auto;max-height:calc(100dvh - 222px);scrollbar-width:thin}.process-details summary{cursor:pointer;min-height:36px;display:flex;align-items:center;font-size:12px;color:var(--ink)}.process-details p{margin-top:6px}.process-details{margin-top:4px}.processtools .single-liquid:has(#flowCycleButton[hidden]){display:none}
+@media(max-width:700px){.processguide{max-height:48dvh;padding:14px}.processmain{max-height:calc(48dvh - 28px)}.process-paths{padding-right:78px}.process-paths button{font-size:11px;padding:8px}.processcopy p{font-size:12px}.processtools{gap:5px}.processtools .single-liquid{flex:0 0 auto}.processguide .processclose{font-size:11px}.processsource,.researchlinks{font-size:10px}}

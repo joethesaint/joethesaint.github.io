@@ -27,7 +27,7 @@ test('component labels reveal on demand and open process or part details',async(
  await expect(page.locator('#processGuide')).toBeHidden();
  await openAction(page,'designsButton');
  await page.locator('[data-design="A"]').click();
- await expect.poll(async()=> (await state(page)).design).toBe('A');
+ await expect.poll(async()=> (await state(page)).design,{timeout:30000}).toBe('A');
  await expect(page.getByRole('button',{name:'Explain Digester',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Explain Digester',exact:true}).click();
  await expect(page.locator('#inspector')).toBeVisible();

@@ -112,7 +112,7 @@ function selectPart(record){if(record&&processMode)exitProcess();if(record)close
 
 if(!globalThis.__BIOGAS_TEST__)arcPicker=createArcPicker($('arcPicker'),[{value:'cad',label:'CAD'},{value:'hairline',label:'Hairline'},{value:'solid',label:'Solid'},{value:'skeleton',label:'Skeleton'},{value:'transparent',label:'X-ray'}],value=>{mode=value;applyMode();});
 arcPicker?.set(mode);
-$('explode').oninput=e=>{if(processMode)exitProcess();playing=false;setState(null);setExplosion(Number(e.target.value));};listen($('labelToggle'),'change',schedulePersist);
+$('explode').oninput=e=>{if(processMode)exitProcess();playing=false;setState(null);setExplosion(Number(e.target.value));};listen($('labelToggle'),'change',()=>{requestRender();schedulePersist();});
 $('fit').onclick=()=>fitModel();
 
 // Progressive disclosure: show only the control panel needed for the current task.

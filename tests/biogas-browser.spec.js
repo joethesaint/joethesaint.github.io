@@ -27,8 +27,8 @@ test('component labels reveal on demand and open process or part details',async(
  await expect(page.locator('#processGuide')).toBeHidden();
  await openAction(page,'designsButton');
  await page.locator('[data-design="A"]').click();
- await expect(page.getByRole('button',{name:'Explain Flexible digester bag',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Explain Flexible digester bag',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Explain Digester',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Explain Digester',exact:true}).click();
  await expect(page.locator('#inspector')).toBeVisible();
- await expect(page.locator('#partTitle')).toHaveText('Flexible digester bag');
+ await expect(page.locator('#partTitle')).toHaveText('Digester');
 });

@@ -13,3 +13,21 @@ test('flow valve, shader, stop, replay, completion and explosion recovery',async
  await page.locator('#flowCycleButton').click();await expect(page.locator('#flowCycleStatus')).toHaveText('Cycle complete · valve closed',{timeout:15000});expect((await state(page)).flowCycle).toBe(false);await page.locator('#flowCycleButton').click();await openAction(page,'toolsButton');await page.locator('#explode').focus();await page.keyboard.press('ArrowRight');await expect(page.locator('#processGuide')).toBeHidden();expect((await state(page)).flowCycle).toBe(false);expect(errors).toEqual([]);
 });
 test('reduced motion retains step navigation and disables cycling',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});await ready(page);await openAction(page,'process');await expect(page.locator('#flowCycleButton')).toBeDisabled();await page.locator('#nextProcess').click();await expect(page.locator('#processTitle')).toHaveText('Anaerobic digestion');await page.keyboard.press('Escape');await expect(page.locator('#processGuide')).toBeHidden();await page.evaluate(()=>window.biogasStudio.dispose());expect((await state(page)).disposed).toBe(true);await expect(page.locator('#viewport canvas')).toHaveCount(0);});
+
+test('component labels reveal on demand and open process or part details',async({page})=>{
+ await ready(page);
+ await openAction(page,'toolsButton');
+ await expect(page.locator('.label:visible')).toHaveCount(0);
+ await page.locator('#labelToggle').check();
+ await expect(page.getByRole('button',{name:'Explain Slurry inlet',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Explain Slurry inlet',exact:true}).click();
+ await expect(page.locator('#processGuide')).toBeVisible();
+ await expect(page.locator('#processTitle')).toHaveText('Feed preparation');
+ await page.keyboard.press('Escape');
+ await expect(page.locator('#processGuide')).toBeHidden();
+ await page.locator('[data-design="A"]').click();
+ await expect(page.getByRole('button',{name:'Explain Flexible digester bag',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Explain Flexible digester bag',exact:true}).click();
+ await expect(page.locator('#inspector')).toBeVisible();
+ await expect(page.locator('#partTitle')).toHaveText('Flexible digester bag');
+});

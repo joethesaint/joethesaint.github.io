@@ -252,6 +252,13 @@
       tags: ['Three.js', 'GLSL', 'Spatial Hashing', 'Simulation']
     },
     {
+      title: 'The Proof Machine',
+      demo: 'https://joethesaint.github.io/proof-machine/',
+      github: '#',
+      desc: 'A research pipeline that tests trading ideas against eight evidence gates, drawn as a working 3D machine: a reveal film, exploded view, section cut and real results riding the line. 38 ideas in, 0 out.',
+      tags: ['Three.js', 'Quant research', 'Python']
+    },
+    {
       title: 'Biogas Digester Viewer',
       demo: 'https://joethesaint.github.io/biogas/',
       github: '#',

@@ -90,3 +90,8 @@ html,body{height:100%;position:fixed;width:100%;overflow:hidden}.gooey-menu>svg{
 @media(max-width:700px){.process-paths>button{flex:0 0 auto}.process-paths{gap:5px}}
 
 @media(min-width:701px){.processcontent{display:grid;grid-template-columns:minmax(0,1fr) 230px;align-items:start}.processtools{width:230px;min-width:0}.processcopy{max-width:none}}
+
+.filmtitle{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);font:600 11px/1.2 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;color:#e9eef0;background:rgba(17,19,21,.72);padding:7px 12px;border-radius:999px;opacity:0;transition:opacity .6s;pointer-events:none;white-space:nowrap;max-width:calc(100% - 32px);overflow:hidden;text-overflow:ellipsis;z-index:3}
+.filmtitle.on{opacity:1}
+#viewport.filming #hint,#viewport.filming #inspector{display:none}
+@media (prefers-reduced-motion:reduce){.filmtitle{transition:none}}

@@ -52,14 +52,18 @@ export function createFilm(app) {
   const rt = new T.WebGLRenderTarget(1, 1, {samples: 4, type: T.HalfFloatType});
   const quadCam = new T.OrthographicCamera(-1, 1, 1, -1, 0, 1);
   const blurMat = new T.ShaderMaterial({
-    uniforms: {tDiffuse: {value: rt.texture}, vel: {value: new T.Vector2()}, zm: {value: 0}},
+    uniforms: {tDiffuse: {value: rt.texture}, vel: {value: new T.Vector2()}, zm: {value: 0}, bg: {value: new T.Color()}},
     vertexShader: 'varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }',
-    fragmentShader: `uniform sampler2D tDiffuse; uniform vec2 vel; uniform float zm; varying vec2 vUv;
+    // the model is drawn over a transparent clear, tone-mapped here, then laid over the page background exactly as a
+    // direct render shows it (the background itself is never tone-mapped), so the film never shifts the backdrop
+    fragmentShader: `uniform sampler2D tDiffuse; uniform vec2 vel; uniform float zm; uniform vec3 bg; varying vec2 vUv;
       void main(){ vec4 a = vec4(0.0);
         for (int i = 0; i < 16; i++) { float s = float(i) / 15.0 - 0.5; a += texture2D(tDiffuse, vUv - vel * s - (vUv - 0.5) * zm * s); }
-        gl_FragColor = a / 16.0;
+        a /= 16.0;
+        gl_FragColor = vec4(a.rgb / max(a.a, 1e-4), 1.0);
         #include <tonemapping_fragment>
         #include <colorspace_fragment>
+        gl_FragColor = vec4(mix(bg, gl_FragColor.rgb, clamp(a.a, 0.0, 1.0)), 1.0);
       }`,
     depthTest: false, depthWrite: false,
   });
@@ -126,11 +130,15 @@ export function createFilm(app) {
     title.classList.toggle('on', t > 14.6 && t < 16.3);
   }
   function render() {
-    const moving = blurMat.uniforms.vel.value.length() > .0015 || Math.abs(blurMat.uniforms.zm.value) > .002;
-    if (!moving) { renderer.render(scene, camera); return; }
+    // One path for the whole film: switching between direct and target rendering changed the background's tone
+    // mapping from frame to frame, which flickered. Still frames simply get a zero-length smear.
     const size = renderer.getDrawingBufferSize(new T.Vector2());
     if (rt.width !== size.x || rt.height !== size.y) rt.setSize(size.x, size.y);
+    const back = scene.background, clear = renderer.getClearColor(new T.Color()), clearA = renderer.getClearAlpha();
+    if (back?.isColor) blurMat.uniforms.bg.value.copy(back).convertLinearToSRGB();
+    scene.background = null; renderer.setClearColor(0x000000, 0);
     renderer.setRenderTarget(rt); renderer.render(scene, camera);
+    scene.background = back; renderer.setClearColor(clear, clearA);
     renderer.setRenderTarget(null); renderer.render(quadScene, quadCam);
   }
   const hold = t => { if (film) film.hold = Math.min(t, DUR - .01); };

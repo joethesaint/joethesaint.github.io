@@ -1214,3 +1214,9 @@ a, button {
 .mobile-menu-toggle:active span {
   background-color: var(--accent-green);
 }
+
+/* Recent Activity: Strava's fixed-size widget, centred in a card that fits it instead of a full-width box */
+.strava-card { display: flex; flex-direction: column; align-items: center; gap: 0.75rem; padding: 1.5rem; max-width: 420px; margin: 0 auto; text-align: center; }
+.strava-note { margin: 0; font-size: 0.9rem; opacity: 0.75; }
+.strava-embed { border: 0; width: 100%; max-width: 300px; height: 160px; border-radius: 8px; background: transparent; }
+.strava-link { font-size: 0.85rem; }

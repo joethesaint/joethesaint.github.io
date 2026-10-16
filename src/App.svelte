@@ -280,6 +280,12 @@
       tags: ['Svelte 5', 'Three.js', 'Vite', 'Gamification']
     },
     {
+      title: 'Project GLASS (AGORA)',
+      github: 'https://github.com/joethesaint/AGORA-glass',
+      desc: 'Hackathon build for Canteen × Circle: an autonomous liquidation-safety copilot for perpetual-futures traders. A Python agent caps leverage at 5x and dispatches margin rescues via Circle wallets, with every decision hashed to the Arc network as a reasoning trace.',
+      tags: ['Python', 'React', 'Circle', 'Arc']
+    },
+    {
       title: 'SaveMyLinks',
       github: 'https://github.com/joethesaint/savemylinks',
       desc: 'An open source website bookmark manager tool designed to save, organize, and categorize web links efficiently with a clean and simple interface.',
@@ -978,6 +984,32 @@
         </div>
       </div>
     </div>
+    </div>
+    </div>
+  </section>
+
+  <!-- Recent Activity (Strava) -->
+  <section id="activity">
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+    <div class="section-header" class:accordion-toggle={isMobile} on:click={() => toggleSection('activity')} on:keydown={(e) => e.key === 'Enter' && toggleSection('activity')} role={isMobile ? 'button' : null} tabindex={isMobile ? 0 : null} aria-expanded={isMobile ? expandedSection === 'activity' : null}>
+      <h2 class="section-title">Recent Activity</h2>
+      {#if isMobile}<span class="accordion-chevron" class:open={expandedSection === 'activity'}>&darr;</span>{/if}
+    </div>
+
+    <div class="accordion-body" class:open={!isMobile || expandedSection === 'activity'}>
+    <div class="accordion-inner">
+      <div class="glass-card strava-card">
+        <p class="strava-note">Away from the screen: my latest runs and rides, live from Strava.</p>
+        <iframe
+          class="strava-embed"
+          title="Joseph's recent activity on Strava"
+          src="https://www.strava.com/athletes/141513180/activity-summary/c5040f8ca823f9bcf071c96f807b732823f3496e"
+          width="300"
+          height="160"
+          loading="lazy"
+        ></iframe>
+        <a class="strava-link" href="https://www.strava.com/athletes/141513180" target="_blank" rel="noopener">Follow on Strava</a>
+      </div>
     </div>
     </div>
   </section>

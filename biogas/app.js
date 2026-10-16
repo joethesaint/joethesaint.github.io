@@ -2,7 +2,7 @@ import {setActivity,showLoadingError,disposeEffects} from './effects.js?v=hairli
 import {addOutlines,sizeOutlines,addAssemblyGuides} from './cad-outlines.js';
 import {createArcPicker,enhanceControls} from './effects.js?v=hairline-complete-20261012-b';
 import {createTapTracker} from './pointer-intent.js';
-import {createFilm} from './film.js?v=film-20261016';
+import {createFilm} from './film.js?v=film-20261016-b';
 
 import * as T from 'three';
 import {OrbitControls} from './vendor/OrbitControls.js';

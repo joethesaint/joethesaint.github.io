@@ -158,7 +158,7 @@
             <div class="thumbs" id="thumbs"></div>
           </div>
         </div>
-        <div class="trap" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" type="text" tabindex="-1" autocomplete="off" /></div>
+        <div class="trap" aria-hidden="true"><label for="website">Leave this empty</label><input id="website" name="website" type="text" tabindex="-1" autocomplete="off" /></div>
         <div class="actions">
           <button class="btn" id="review" type="submit">Review report</button>
         </div>
@@ -190,9 +190,10 @@
       // name, email, subject, message, optional code + up to 5 attachments, 10 MB in total;
       // "website" is a spam trap that must stay empty).
       const CONTACT_URL = 'https://ims.invozaa.com/api/v1/contact'
-      // TEMPORARY log so reports can be downloaded as CSV/Excel: a Google Sheet web app (Apps Script) that adds one
-      // row per report. Empty = off. The real home is the IMS backend; remove this when it can list submissions.
-      const SHEET_URL = ''
+      // J03's private record: a Google Apps Script web app that adds one row per report to his sheet "IMS Bug
+      // Reports" (Date, Priority, Title, Page, Reporter, Status). It stamps the date and sets Status "New".
+      // The URL is public in this repo: anyone could add a row, which is accepted; nothing can be read through it.
+      const SHEET_URL = 'https://script.google.com/macros/s/AKfycbysJA5mPW_qmGIxzFrakjkh4ggBPsWkrl71Z-RxOkTc2LaouogemogZ4GYaiVa_A3FsYw/exec'
       const MAX_SHOTS = 3
       const MAX_BYTES = 10 * 1024 * 1024
       const $ = id => document.getElementById(id)
@@ -306,14 +307,18 @@
         502: 'The report reached the server but the email to the team failed. Copy the spec and try again shortly.'
       }
       // One row in the sheet, only after the team's form accepted the report (a failed send and its retry don't
-      // add two rows). Fire-and-forget: Apps Script answers without CORS headers, so the reply can't be read.
+      // add two rows). Fire-and-forget: sent as text/plain so there is no CORS preflight; the reply is opaque and
+      // any failure is swallowed, so the sheet can never block or break the main send.
+      // Reporter is the name only, never the email: the sheet keeps the minimum.
       function logToSheet () {
         if (!SHEET_URL) return
-        const row = {
-          priority: picked('priority'), title: $('title').value.trim(), page: $('where').value.trim(),
-          reporter: `${$('name').value.trim()} <${$('email').value.trim()}>`, website: $('website').value
-        }
-        fetch(SHEET_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(row) }).catch(() => {})
+        try {
+          const row = {
+            title: $('title').value.trim(), page: $('where').value.trim(), reporter: $('name').value.trim(),
+            priority: picked('priority'), website: $('website').value
+          }
+          fetch(SHEET_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(row) }).catch(() => {})
+        } catch { /* the sheet is a side record; the report already went to the team */ }
       }
 
       $('send').addEventListener('click', async () => {

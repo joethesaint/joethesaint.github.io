@@ -73,6 +73,21 @@
       .prio[data-p="Must have"] { color: var(--must) } .prio[data-p="Should have"] { color: var(--should) } .prio[data-p="Could have"] { color: var(--could) }
       .trap { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden }
       .done { text-align: left }
+      .log-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px }
+      .log { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; list-style: none }
+      .log details { border: 1px solid var(--line); border-radius: 10px; background: var(--surface) }
+      .log summary { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 12px 14px; cursor: pointer; list-style: none }
+      .log summary::-webkit-details-marker { display: none }
+      .log summary::before { content: "▸"; color: var(--muted); transition: transform .15s }
+      .log details[open] summary::before { transform: rotate(90deg) }
+      .log .t { flex: 1 1 260px; min-width: 0; font-weight: 600 }
+      .log .meta { font-size: 13px; color: var(--muted) }
+      .log .body { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 10px }
+      .log .reply { border-left: 3px solid var(--gold-fill); padding-left: 10px; font-size: 14px }
+      .log .reply b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted) }
+      .state { font-size: 12px; font-weight: 600; border-radius: 999px; padding: 2px 10px; border: 1px solid currentColor; white-space: nowrap }
+      .state[data-s="Fixed"] { color: var(--ok) } .state[data-s="Backend"] { color: var(--should) } .state[data-s="Open"] { color: var(--muted) }
+      @media (prefers-reduced-motion: reduce) { .log summary::before { transition: none } }
     </style>
   </head>
   <body>
@@ -182,6 +197,16 @@
         <h2 id="h-done">Report sent</h2>
         <p class="lede" style="margin-top:0">Thanks. The development team has it, and replies go to the email you gave.</p>
         <div class="actions"><button class="btn secondary" id="another" type="button">Report another bug</button></div>
+      </section>
+      <section class="card" id="log" aria-labelledby="h-log">
+        <div class="log-head">
+          <h2 id="h-log">Reports so far</h2>
+          <button class="linkbtn" id="csv" type="button" hidden>Download as CSV (opens in Excel)</button>
+        </div>
+        <p class="lede" style="margin-top:0">Reports logged before this form existed, written up the way the form writes them, with the team's answer. They're here for reference only. <b>Fixed</b> means it's done on the live demo; <b>Backend</b> means the backend team has to change something first.</p>
+        <p class="help">New reports are written up and logged by the team in the <a href="https://claude.ai/artifact/9F8cch4VKoKPsJvYppBM6Z" rel="noopener" style="color:var(--gold)">full bug log</a> (needs a claude.ai sign-in), which also downloads as CSV.</p>
+        <ol class="log" id="logList"></ol>
+        <p class="msg" id="logMsg" role="status">Loading reports…</p>
       </section>
     </div>
 
@@ -330,6 +355,56 @@
         $('send').disabled = false; $('edit').disabled = false
       })
       $('another').addEventListener('click', () => { $('done').hidden = true; $('form').hidden = false; $('title').focus() })
+
+      // Reports so far: a read-only log in reports.json, shown as the spec each one would have
+      // produced, with the team's reply. The CSV holds the same rows.
+      const when = iso => new Date(iso).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Africa/Lagos' })
+      const firstLine = text => { const t = text.split(/(?<=[.?!])\s/)[0]; return t.length > 110 ? t.slice(0, 107) + '…' : t }
+      const logSpec = r => [
+        'BUG REPORT', '',
+        `Title:     ${firstLine(r.report)}`,
+        `Impact:    ${r.impact}`,
+        `Page:      ${r.page}`,
+        `Demo:      ${r.demo}`,
+        `Reported:  ${when(r.reported)} via ${r.source}`, '',
+        `What happened: ${r.report}`
+      ].join('\n')
+      const csvCell = v => /[",\n]/.test(v) ? `"${String(v).replace(/"/g, '""')}"` : String(v)
+      async function loadLog () {
+        let reports = []
+        try {
+          const res = await fetch('reports.json', { cache: 'no-cache' })
+          if (!res.ok) throw new Error(String(res.status))
+          reports = (await res.json()).reports || []
+        } catch {
+          say($('logMsg'), 'The earlier reports couldn\'t be loaded. Refresh the page to try again.', 'bad'); return
+        }
+        const list = $('logList')
+        for (const r of [...reports].reverse()) {
+          const li = document.createElement('li'); const d = document.createElement('details')
+          const sum = document.createElement('summary')
+          const t = document.createElement('span'); t.className = 't'; t.textContent = firstLine(r.report)
+          const st = document.createElement('span'); st.className = 'state'; st.dataset.s = r.status; st.textContent = r.status
+          const meta = document.createElement('span'); meta.className = 'meta'; meta.textContent = `${r.page} · ${when(r.reported)}`
+          sum.append(t, st, meta)
+          const body = document.createElement('div'); body.className = 'body'
+          const spec = document.createElement('pre'); spec.className = 'spec'; spec.textContent = logSpec(r)
+          const reply = document.createElement('p'); reply.className = 'reply'
+          const lab = document.createElement('b'); lab.textContent = 'Team reply'
+          reply.append(lab, document.createTextNode(r.reply))
+          body.append(spec, reply); d.append(sum, body); li.append(d); list.append(li)
+        }
+        say($('logMsg'), reports.length ? '' : 'No earlier reports.')
+        $('csv').hidden = !reports.length
+        $('csv').onclick = () => {
+          const cols = ['reported', 'page', 'demo', 'impact', 'report', 'source', 'status', 'reply']
+          const lines = [cols.join(','), ...reports.map(r => cols.map(c => csvCell(c === 'reported' ? when(r.reported) : r[c] ?? '')).join(','))]
+          const url = URL.createObjectURL(new Blob(['\ufeff' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' }))
+          const a = Object.assign(document.createElement('a'), { href: url, download: 'ims-bug-reports.csv' })
+          document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000)
+        }
+      }
+      loadLog()
     </script>
   </body>
 </html>

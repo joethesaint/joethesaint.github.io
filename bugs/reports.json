@@ -1,0 +1,60 @@
+{
+  "note": "Reports logged before this form existed. Read-only: kept so testers can see how a report is written up and answered. Edit this file to add or update one.",
+  "reports": [
+    {
+      "id": "address",
+      "reported": "2026-10-27T13:49Z",
+      "page": "Complete your member profile",
+      "demo": "Live demo",
+      "impact": "Annoying",
+      "report": "Address fields are typed by hand, so someone can enter a wrong value like a state called \"Deltaaaa\". They should be dropdowns, since the values are known.",
+      "source": "WhatsApp",
+      "status": "Fixed",
+      "reply": "Fixed 27 Oct. Nationality, state and local government are now dropdowns on the onboarding form and Edit Profile; the local government list follows the state you pick. Values already saved are kept."
+    },
+    {
+      "id": "spam",
+      "reported": "2026-10-27T13:49Z",
+      "page": "Sign-in or sign-in email",
+      "demo": "Live demo",
+      "impact": "Annoying",
+      "report": "The magic-link sign-in email dropped into my spam folder.",
+      "source": "WhatsApp",
+      "status": "Backend",
+      "reply": "The email's sender setup is the backend team's to fix (email authentication for the sending domain); we've asked them. Meanwhile the Check Your Email screen now says to look in spam or junk first."
+    },
+    {
+      "id": "lga",
+      "reported": "2026-10-27T13:50Z",
+      "page": "Complete your member profile",
+      "demo": "Live demo",
+      "impact": "Annoying",
+      "report": "There's \"State you live in\" and \"State of origin\", so there should also be \"Local Government you live in\" and \"Local Government of Origin\".",
+      "source": "WhatsApp",
+      "status": "Backend",
+      "reply": "Both are on the form now. Local government of origin appears on the live demo once the backend can store it (asked 27 Oct); until then the live form leaves it out rather than lose what you type."
+    },
+    {
+      "id": "branding",
+      "reported": "2026-10-27T13:52Z",
+      "page": "Sign-in or sign-in email",
+      "demo": "Live demo",
+      "impact": "Looks off",
+      "report": "The magic-link email isn't branded.",
+      "source": "WhatsApp",
+      "status": "Backend",
+      "reply": "The branded CGCC email is designed and handed to the backend; the server still sends a plain-text one. We've asked them to switch to the branded template."
+    },
+    {
+      "id": "multimedia",
+      "reported": "2026-10-27T13:55Z",
+      "page": "Dashboard",
+      "demo": "Live demo",
+      "impact": "Annoying",
+      "report": "I was assigned the Multimedia department by default? (Dashboard also showed Member ID CGCC-00124 and CIH Garki Center 2.)",
+      "source": "WhatsApp",
+      "status": "Fixed",
+      "reply": "No department was assigned. Your sign-in link opened an old copy of the demo that showed sample details. Fixed 27 Oct: email links now open the current app, which shows only what is on your record. Sign in again with a new link to see it."
+    }
+  ]
+}

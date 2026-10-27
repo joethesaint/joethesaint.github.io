@@ -190,6 +190,9 @@
       // name, email, subject, message, optional code + up to 5 attachments, 10 MB in total;
       // "website" is a spam trap that must stay empty).
       const CONTACT_URL = 'https://ims.invozaa.com/api/v1/contact'
+      // TEMPORARY log so reports can be downloaded as CSV/Excel: a Google Sheet web app (Apps Script) that adds one
+      // row per report. Empty = off. The real home is the IMS backend; remove this when it can list submissions.
+      const SHEET_URL = ''
       const MAX_SHOTS = 3
       const MAX_BYTES = 10 * 1024 * 1024
       const $ = id => document.getElementById(id)
@@ -302,6 +305,17 @@
         429: 'Too many reports from here in a short time. Wait a minute, then send again.',
         502: 'The report reached the server but the email to the team failed. Copy the spec and try again shortly.'
       }
+      // One row in the sheet, only after the team's form accepted the report (a failed send and its retry don't
+      // add two rows). Fire-and-forget: Apps Script answers without CORS headers, so the reply can't be read.
+      function logToSheet () {
+        if (!SHEET_URL) return
+        const row = {
+          priority: picked('priority'), title: $('title').value.trim(), page: $('where').value.trim(),
+          reporter: `${$('name').value.trim()} <${$('email').value.trim()}>`, website: $('website').value
+        }
+        fetch(SHEET_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(row) }).catch(() => {})
+      }
+
       $('send').addEventListener('click', async () => {
         if ($('website').value) return
         $('send').disabled = true; $('edit').disabled = true
@@ -318,6 +332,7 @@
           const res = await fetch(CONTACT_URL, { method: 'POST', body })
           let data = null; try { data = await res.json() } catch { /* not JSON */ }
           if (res.ok && data?.success) {
+            logToSheet()
             shots.forEach(s => URL.revokeObjectURL(s.url)); shots = []; renderThumbs()
             for (const id of ['title', 'where', 'steps', 'expected', 'actual', 'code']) $(id).value = ''
             $('preview').hidden = true; $('done').hidden = false; $('another').focus()

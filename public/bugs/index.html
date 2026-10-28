@@ -182,7 +182,7 @@
 
       <section class="card" id="preview" aria-labelledby="h-preview" hidden>
         <h2 id="h-preview">Check your report</h2>
-        <p class="lede" style="margin-top:0">This is exactly what the development team will receive<span id="attachNote"></span>.</p>
+        <p class="lede" style="margin-top:0">This is the report text we'll send to the IMS team<span id="attachNote"></span>. Any error text you pasted goes with it.</p>
         <p><span class="prio" id="prioBadge"></span></p>
         <pre class="spec" id="spec"></pre>
         <div class="actions">
@@ -195,7 +195,7 @@
 
       <section class="card done" id="done" aria-labelledby="h-done" hidden>
         <h2 id="h-done">Report sent</h2>
-        <p class="lede" style="margin-top:0">Thanks. The development team has it, and replies go to the email you gave.</p>
+        <p class="lede" style="margin-top:0">Thanks. The IMS team has your report, with your email on it so they can reach you.</p>
         <div class="actions"><button class="btn secondary" id="another" type="button">Report another bug</button></div>
       </section>
       <section class="card" id="log" aria-labelledby="h-log">
@@ -322,7 +322,7 @@
       })
 
       const FAILURE = {
-        400: 'The team\'s form rejected the report. Check your email address and try again.',
+        400: 'The team\'s form didn\'t accept the report. Check the fields above, then try again.',
         413: 'The screenshots are too large together. Remove one or use smaller images (10 MB in total).',
         429: 'Too many reports from here in a short time. Wait a minute, then send again.',
         502: 'The report reached the server but the email to the team failed. Copy the spec and try again shortly.'
@@ -369,7 +369,11 @@
         `Reported:  ${when(r.reported)} via ${r.source}`, '',
         `What happened: ${r.report}`
       ].join('\n')
-      const csvCell = v => /[",\n]/.test(v) ? `"${String(v).replace(/"/g, '""')}"` : String(v)
+      // A cell starting with = + - @ (or a tab or CR) would run as a formula in Excel: prefix it with '.
+      const csvCell = v => {
+        const t = /^[=+\-@\t\r]/.test(String(v)) ? `'${v}` : String(v)
+        return /[",\r\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t
+      }
       async function loadLog () {
         let reports = []
         try {

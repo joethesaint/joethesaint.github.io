@@ -280,6 +280,13 @@
       tags: ['Svelte 5', 'Three.js', 'Vite', 'Gamification']
     },
     {
+      title: 'Dídùn Cakes',
+      demo: 'https://joethesaint.github.io/didun/',
+      github: 'https://github.com/joethesaint/didun-cake-form',
+      desc: 'Website and order form for a cake maker, styled as a paper order slip. Customers pick flavours, fillings and finishes, and the form turns the order into a shareable image in the browser: no backend, progress saved locally.',
+      tags: ['React 19', 'TypeScript', 'Vite', 'html-to-image']
+    },
+    {
       title: 'Project GLASS (AGORA)',
       github: 'https://github.com/joethesaint/AGORA-glass',
       desc: 'Hackathon build for Canteen × Circle: an autonomous liquidation-safety copilot for perpetual-futures traders. A Python agent caps leverage at 5x and dispatches margin rescues via Circle wallets, with every decision hashed to the Arc network as a reasoning trace.',

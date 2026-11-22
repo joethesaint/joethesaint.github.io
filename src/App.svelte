@@ -808,8 +808,8 @@
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
           <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">[FEATURED_BUILD]</span>
           <span style="display: flex; gap: 0.75rem;">
+            <!-- One link, as on every card: the live demo (it should link to its source). -->
             <a href="https://joethesaint.github.io/AsciiGen/" target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[LIVE DEMO &rarr;]</a>
-            <a href="https://github.com/joethesaint/AsciiGen" target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[GITHUB &rarr;]</a>
           </span>
         </div>
         <h3 style="font-size: 1.15rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--text-main);">AsciiGen</h3>

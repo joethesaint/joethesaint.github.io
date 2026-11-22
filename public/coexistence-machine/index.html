@@ -167,18 +167,8 @@ code{font-family:var(--mono);font-size:.88em}
 </ul>
 <p>So I wrote rules. Each one answers a failure that actually happened, and the failure is written down beside the rule.</p>
 
-<h2>Six systems, one idea</h2>
-<p>Underneath them all: <b>be an agent that other agents, and the human, can safely build on.</b> Each system closed a gap the one before it left open.</p>
-<div class="tbl"><table>
-<tr><th>System</th><th>The failure it answers</th><th>The rule</th></tr>
-<tr><td>SYS-01 Coexistence</td><td>Agents overwriting each other's work</td><td>Claim before you write. History only grows. Your own branch.</td></tr>
-<tr><td>SYS-02 Grounding</td><td>Misreading the task, inventing facts</td><td>Restate the task. Cite a source for every fact. Say "unknown".</td></tr>
-<tr><td>SYS-03 Evidence</td><td>Saying a check ran when it didn't</td><td>No claim without evidence beside it. Test the test.</td></tr>
-<tr><td>SYS-04 Proof</td><td>Believing a result that wasn't real</td><td>Set the bar before you look. Test against a control.</td></tr>
-<tr><td>SYS-05 Messages</td><td>A message between agents becoming an order</td><td>A peer's message is a request. Only the human directs.</td></tr>
-<tr><td>SYS-06 Run log</td><td>A long run dying silently on one failure</td><td>Never stop the run, always leave a record.</td></tr>
-</table></div>
-<p>A few of these are enforced in code: git hooks refuse destructive pushes, and a check compares what an agent says it ran with what it actually ran. The rest are rules every agent reads at the start of a session.</p>
+<h2>One idea underneath</h2>
+<p><b>Be an agent that other agents, and the human, can safely build on.</b> The five rules above are the part worth sharing. Behind them sits the private system I run every day, built up one failure at a time.</p>
 
 <h2>Failures that shaped the rules</h2>
 <div class="tbl"><table>
@@ -192,18 +182,18 @@ code{font-family:var(--mono);font-size:.88em}
 </table></div>
 
 <h2>How this compares</h2>
-<p>Running many agents on one repo is a busy field in 2026, and the coordination layer is common. What I'd point to here is evidence built into the workflow, proof before trust, and principles that don't depend on any tool.</p>
+<p>Running many agents on one repo is a busy field in 2026, and the coordination layer is common. The tools solve coordination. The rules above are about trust: what an agent may claim, and what you should believe.</p>
 <div class="tbl"><table>
-<tr><th>Tool</th><th>What it does</th><th>What I'd borrow</th></tr>
-<tr><td><a href="https://github.com/Dicklesworthstone/mcp_agent_mail_rust">MCP Agent Mail</a></td><td>Identities, inboxes, threaded messages and file leases for coding agents, backed by git</td><td>Claims that expire on their own; an inbox the human can watch</td></tr>
-<tr><td><a href="https://github.com/amittell/coord">coord</a></td><td>Shared file and module claims, checked by a pre-push hook</td><td>An ownership file, so claims are checked by code</td></tr>
-<tr><td><a href="https://github.com/steveyegge/beads">Beads</a></td><td>A git-backed issue graph as long-term memory for agents</td><td>Collision-free IDs; task dependencies; compacting old work</td></tr>
-<tr><td><a href="https://pkg.go.dev/github.com/steveyegge/gastown">Gas Town</a></td><td>An orchestrator for 20 to 30 agents with fixed roles</td><td>One merge point; one watcher for stuck agents</td></tr>
+<tr><th>Tool</th><th>What it does</th><th>Worth a look if you want</th></tr>
+<tr><td><a href="https://github.com/Dicklesworthstone/mcp_agent_mail_rust">MCP Agent Mail</a></td><td>Identities, inboxes, threaded messages and file leases for coding agents, backed by git</td><td>Agents that message each other directly</td></tr>
+<tr><td><a href="https://github.com/amittell/coord">coord</a></td><td>Shared file and module claims, checked by a pre-push hook</td><td>A small, central list of who is editing what</td></tr>
+<tr><td><a href="https://github.com/steveyegge/beads">Beads</a></td><td>A git-backed issue graph as long-term memory for agents</td><td>Long-term task memory across sessions</td></tr>
+<tr><td><a href="https://pkg.go.dev/github.com/steveyegge/gastown">Gas Town</a></td><td>An orchestrator for 20 to 30 agents with fixed roles</td><td>Dozens of agents running at once</td></tr>
 </table></div>
 <p style="font-family:var(--ui);font-size:13.5px;color:var(--muted)">As of 22 November 2026, from each project's published docs.</p>
 
 <h2>If you keep only five</h2>
-<p>Thirty-odd principles are too many to adopt at once. Start with the one that answers the mistake you make most often, and add more when a real failure calls for it. That is how these were written: one failure at a time. None of them are really about AI. They're what you'd want from any good teammate; agents just break them faster.</p>
+<p>Don't adopt them all at once. Start with the one that answers the mistake you make most often, and add more when a real failure calls for it. That is how these were written: one failure at a time. None of them are really about AI. They're what you'd want from any good teammate; agents just break them faster.</p>
 
 <div class="end">Written by Joseph Taiwo Bamisaye. First published 22 November 2026. &copy; 2026 Joseph Taiwo Bamisaye. Share it freely with credit and a link back.</div>
 </div></body></html>

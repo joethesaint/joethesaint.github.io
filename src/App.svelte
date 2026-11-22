@@ -262,7 +262,7 @@
       title: 'The Coexistence Machine',
       demo: 'https://joethesaint.github.io/coexistence-machine/',
       github: '#',
-      desc: 'How I run a team of AI coding agents on one codebase without them overwriting each other, claiming work they didn\'t do, or forgetting what went wrong. Six systems and five rules, drawn as a machine: follow one task from claim to evidence to done.',
+      desc: 'How I run a team of AI coding agents on one codebase without them overwriting each other, claiming work they didn\'t do, or forgetting what went wrong. Five rules, drawn as a machine: follow one task from claim to evidence to done.',
       tags: ['AI agents', 'Git', 'Systems design']
     },
     {

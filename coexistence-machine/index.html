@@ -1,0 +1,209 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The coexistence machine: running a team of AI coding agents</title>
+<meta name="description" content="How I run several AI coding agents on one codebase without them overwriting each other, claiming work they didn't do, or forgetting what went wrong. Five rules, drawn as a machine.">
+<meta name="author" content="Joseph Taiwo Bamisaye">
+<link rel="canonical" href="https://joethesaint.github.io/coexistence-machine/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The coexistence machine">
+<meta property="og:description" content="Running a team of AI coding agents on one codebase: five rules, each from something that went wrong.">
+<meta property="og:url" content="https://joethesaint.github.io/coexistence-machine/">
+<meta property="og:image" content="https://joethesaint.github.io/coexistence-machine/og.png">
+<meta property="article:published_time" content="2026-11-22">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{--bg:#f6f5f1;--panel:#fffefb;--fg:#23221f;--muted:#6b6860;--line:#d9d6cc;--accent:#b4462b;--sans:"Iowan Old Style","Palatino Linotype",Georgia,serif;--ui:system-ui,"Segoe UI",sans-serif;--mono:ui-monospace,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#14140f;--panel:#1b1b16;--fg:#e9e6dc;--muted:#a19d90;--line:#36342c;--accent:#e08a6e}}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 var(--sans)}
+.page{max-width:60rem;margin:0 auto;padding:28px max(16px,env(safe-area-inset-left)) 56px}
+h1{font-weight:400;font-size:38px;line-height:1.15;margin:0;letter-spacing:.01em}
+h2{font-weight:400;font-size:24px;margin:44px 0 10px}
+nav{font:12px/1.4 var(--mono);margin:0 0 12px}
+.sub{color:var(--muted);font-family:var(--ui);font-size:15px;margin:8px 0 22px;max-width:70ch}
+a{color:var(--accent)}
+figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:16px;overflow-x:auto}
+figure svg{display:block;width:100%;min-width:44rem;height:auto;color:var(--fg)}
+figcaption{font-family:var(--ui);font-size:13.5px;color:var(--muted);margin-top:10px;max-width:80ch}
+.key{display:grid;gap:12px;margin:22px 0 0;padding:0;list-style:none;font-family:var(--ui);font-size:16px}
+.key li{display:grid;grid-template-columns:2rem 1fr;gap:10px;align-items:start}.key b{font-weight:600}
+.num{display:inline-flex;width:1.5rem;height:1.5rem;border:1px solid var(--fg);border-radius:50%;align-items:center;justify-content:center;font-size:12px;font-family:var(--mono)}
+.num.a{border-color:var(--accent);color:var(--accent)}
+p,ul{max-width:70ch}
+li{margin:4px 0}
+.tbl{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;font-family:var(--ui);font-size:14.5px;line-height:1.45;min-width:40rem;width:100%}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-weight:600;color:var(--muted);font-size:13px}
+code{font-family:var(--mono);font-size:.88em}
+.end{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-family:var(--ui);font-size:13.5px;color:var(--muted)}
+</style></head><body><div class="page">
+<nav><a href="/">joethesaint.github.io</a> &middot; <a href="/proof-machine/cutaway.html">The Proof Machine</a></nav>
+<h1>The coexistence machine</h1>
+<p class="sub">Running a team of AI coding agents on one codebase: what happens to one task, station by station. Follow the red line.</p>
+
+<figure>
+<svg viewBox="0 0 984 640" role="img" aria-label="One task enters a hopper, passes a claim gate, is worked on by one of three agents on its own branch, goes through an evidence press, and ends as DONE with its output or BLOCKED with one question. The human director watches above; every step is written to an append-only thread along the floor, where a mistaken entry is corrected by a new one." fill="none" stroke="currentColor" stroke-width="1.6" font-family="ui-monospace,Consolas,monospace">
+  <defs>
+    <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="var(--accent)" stroke="none"/></marker>
+    <marker id="ak" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" fill="currentColor" stroke="none"/></marker>
+    <pattern id="h" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" stroke="currentColor" stroke-width=".8"/></pattern>
+  </defs>
+
+  <!-- director (human) -->
+  <rect x="420" y="40" width="140" height="56"/>
+  <circle cx="490" cy="68" r="13"/><circle cx="490" cy="68" r="4" fill="currentColor"/>
+  <text fill="currentColor" x="490" y="122" text-anchor="middle" font-size="15" stroke="none">director (human)</text>
+  <g stroke="currentColor" stroke-width="1" stroke-dasharray="2 5">
+    <path d="M420 80 L250 300"/><path d="M560 68 H910 V200"/>
+  </g>
+
+  <!-- 1 hopper -->
+  <rect x="52" y="150" width="76" height="44" fill="var(--panel)"/>
+  <path d="M62 164h56M62 174h56M62 184h40" stroke-width="1"/>
+  <path d="M34 200 L146 200 L112 268 L68 268 Z"/>
+  <rect x="80" y="268" width="20" height="40"/>
+  <text fill="currentColor" x="90" y="138" text-anchor="middle" font-size="14" stroke="none">task card</text>
+
+  <!-- red path: hopper to gate -->
+  <path d="M90 308 V340 H196" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- 2 claim gate -->
+  <rect x="198" y="304" width="76" height="72"/>
+  <rect x="198" y="304" width="76" height="14" fill="url(#h)"/>
+  <circle cx="236" cy="347" r="16"/><path d="M220 347h32M236 331v32" stroke-width="1.2"/>
+  <text fill="currentColor" x="236" y="404" text-anchor="middle" font-size="14" stroke="none">CLAIM gate</text>
+  <path d="M274 340 H310" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- splitter + lanes -->
+  <rect x="312" y="322" width="36" height="36"/>
+  <path d="M348 330 L386 230 H404" marker-end="url(#ak)" stroke-width="1.4"/>
+  <path d="M348 340 H404" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M348 350 L386 450 H404" marker-end="url(#ak)" stroke-width="1.4"/>
+
+  <g>
+    <rect x="406" y="202" width="168" height="56"/><rect x="406" y="202" width="168" height="12" fill="url(#h)"/>
+    <text fill="currentColor" x="490" y="242" text-anchor="middle" font-size="14" stroke="none">agent A · branch</text>
+    <rect x="406" y="312" width="168" height="56"/><rect x="406" y="312" width="168" height="12" fill="url(#h)"/>
+    <text fill="currentColor" x="490" y="352" text-anchor="middle" font-size="14" stroke="none">agent B · branch</text>
+    <rect x="406" y="422" width="168" height="56"/><rect x="406" y="422" width="168" height="12" fill="url(#h)"/>
+    <text fill="currentColor" x="490" y="462" text-anchor="middle" font-size="14" stroke="none">agent C · branch</text>
+  </g>
+  <!-- message tube A-B -->
+  <path d="M540 258 V312" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <rect x="531" y="276" width="18" height="12" fill="var(--panel)" stroke-width="1"/><path d="M531 276 l9 7 l9 -7" stroke-width="1"/>
+  <text x="556" y="290" font-size="12.5" fill="var(--muted)" stroke="none">request</text>
+
+  <!-- lanes into press -->
+  <path d="M574 230 H682 V286" marker-end="url(#ak)" stroke-width="1.4"/>
+  <path d="M574 340 H620" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M574 450 H682 V394" marker-end="url(#ak)" stroke-width="1.4"/>
+
+  <!-- 3 evidence press -->
+  <rect x="622" y="288" width="120" height="104"/>
+  <path d="M622 310 H742" stroke-width="1.2"/>
+  <text fill="currentColor" x="682" y="304" text-anchor="middle" font-size="11.5" stroke="none">EVIDENCE PRESS</text>
+  <circle cx="682" cy="350" r="22"/><path d="M682 350 L698 336" stroke-width="1.6"/>
+  <path d="M664 362h5M695 362h5M682 332v5" stroke-width="1"/>
+  <path d="M742 340 H754" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar)"/>
+
+  <!-- decision -->
+  <path d="M756 340 L800 296 L844 340 L800 384 Z"/>
+  <text fill="currentColor" x="800" y="345" text-anchor="middle" font-size="13" stroke="none">proved?</text>
+  <path d="M800 296 V232 H858" stroke="var(--accent)" stroke-width="2" marker-end="url(#ar)"/>
+  <path d="M800 384 V426 H858" stroke-width="1.4" marker-end="url(#ak)"/>
+  <text x="810" y="276" font-size="12.5" fill="var(--muted)" stroke="none">yes</text>
+  <text x="810" y="410" font-size="12.5" fill="var(--muted)" stroke="none">no</text>
+
+  <rect x="860" y="204" width="100" height="56" stroke="var(--accent)" stroke-width="2"/>
+  <text x="910" y="237" text-anchor="middle" font-size="15" font-weight="700" fill="var(--accent)" stroke="none">DONE</text>
+  <rect x="860" y="398" width="100" height="56"/>
+  <text fill="currentColor" x="910" y="431" text-anchor="middle" font-size="15" font-weight="700" stroke="none">BLOCKED</text>
+  <text x="910" y="280" text-anchor="middle" font-size="12" fill="var(--muted)" stroke="none">+ the output</text>
+  <text x="910" y="474" text-anchor="middle" font-size="12" fill="var(--muted)" stroke="none">+ one question</text>
+
+  <!-- ground + ledger tape -->
+  <path d="M28 528 H956 M28 533 H956" stroke-width="1"/>
+  <g stroke-width="1" stroke-dasharray="2 5">
+    <path d="M236 414 V546"/><path d="M720 392 V546"/>
+  </g>
+  <g font-size="12.5">
+    <rect x="200" y="552" width="86" height="30" stroke-width="1.2"/><text fill="currentColor" x="243" y="572" text-anchor="middle" stroke="none">CLAIM</text>
+    <rect x="300" y="552" width="86" height="30" stroke-width="1.2"/><text fill="currentColor" x="343" y="572" text-anchor="middle" stroke="none">DONE</text>
+    <rect x="400" y="552" width="100" height="30" stroke-width="1.2"/><text fill="currentColor" x="450" y="572" text-anchor="middle" stroke="none">"it passed"</text>
+    <path d="M410 567 H490" stroke-width="1.2"/>
+    <rect x="514" y="552" width="148" height="30" stroke="var(--accent)" stroke-width="2"/><text x="588" y="572" text-anchor="middle" fill="var(--accent)" stroke="none">I was wrong: …</text>
+    <rect x="676" y="552" width="86" height="30" stroke-width="1.2"/><text fill="currentColor" x="719" y="572" text-anchor="middle" stroke="none">BLOCKED</text>
+    <path d="M776 567 H860" stroke-width="1.2" stroke-dasharray="3 4"/>
+  </g>
+  <text fill="currentColor" x="60" y="614" font-size="14" stroke="none">append-only thread</text><text x="238" y="614" font-size="12.5" fill="var(--muted)" stroke="none">· nothing is edited or deleted; mistakes get a new entry</text>
+
+  <!-- callouts -->
+  <g font-size="12.5">
+    <path d="M146 214 L176 196" stroke-width="1"/><circle cx="188" cy="190" r="12" fill="var(--panel)" stroke-width="1.3"/><text fill="currentColor" x="188" y="195" text-anchor="middle" stroke="none">1</text>
+    <path d="M742 292 L760 266" stroke-width="1"/><circle cx="766" cy="256" r="12" fill="var(--panel)" stroke-width="1.3"/><text fill="currentColor" x="766" y="261" text-anchor="middle" stroke="none">2</text>
+    <path d="M440 202 L420 176" stroke-width="1"/><circle cx="412" cy="166" r="12" fill="var(--panel)" stroke-width="1.3"/><text fill="currentColor" x="412" y="171" text-anchor="middle" stroke="none">3</text>
+    <path d="M560 56 L600 40" stroke-width="1"/><circle cx="612" cy="36" r="12" fill="var(--panel)" stroke-width="1.3"/><text fill="currentColor" x="612" y="41" text-anchor="middle" stroke="none">4</text>
+    <path d="M588 552 L620 520" stroke-width="1" stroke="var(--accent)"/><circle cx="630" cy="510" r="12" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/><text x="630" y="515" text-anchor="middle" fill="var(--accent)" stroke="none">5</text>
+  </g>
+</svg>
+<figcaption>A task enters at the left, passes the claim gate, is worked on one agent's own branch, and must go through the evidence press before it can be called done. The human director watches from above. Every step lands on the append-only thread along the floor, where a mistake is corrected by a new entry, never erased.</figcaption>
+</figure>
+
+<ol class="key">
+<li><span class="num">1</span><span><b>Restate the task, cite your sources,</b> and say "unknown" instead of guessing.</span></li>
+<li><span class="num">2</span><span><b>No claim without evidence,</b> and test the test.</span></li>
+<li><span class="num">3</span><span><b>Never destroy or rewrite what others made.</b> Own branch, own claim.</span></li>
+<li><span class="num">4</span><span><b>A message is a request.</b> Only the human directs. Sent is not seen.</span></li>
+<li><span class="num a">5</span><span><b>When you're wrong, say so first.</b></span></li>
+</ol>
+
+<h2>The problem</h2>
+<p>One AI agent in a repo is a fast assistant. Several at once behave like a team with no manager. Over eight weeks on a production app with 17 user roles, I ran several agents in parallel, and the failures were specific:</p>
+<ul>
+<li><b>They overwrite each other.</b> Two agents edit the same file, or one resets a branch another was using.</li>
+<li><b>They report work that didn't happen.</b> "Tests pass" appears in a summary when the tests never ran.</li>
+<li><b>They believe each other.</b> One agent's guess becomes the next agent's fact.</li>
+<li><b>They forget.</b> Each session starts cold, so the same trap gets hit again next week.</li>
+<li><b>Messages become orders.</b> A note from one agent gets treated as if the human had said it.</li>
+</ul>
+<p>So I wrote rules. Each one answers a failure that actually happened, and the failure is written down beside the rule.</p>
+
+<h2>Six systems, one idea</h2>
+<p>Underneath them all: <b>be an agent that other agents, and the human, can safely build on.</b> Each system closed a gap the one before it left open.</p>
+<div class="tbl"><table>
+<tr><th>System</th><th>The failure it answers</th><th>The rule</th></tr>
+<tr><td>SYS-01 Coexistence</td><td>Agents overwriting each other's work</td><td>Claim before you write. History only grows. Your own branch.</td></tr>
+<tr><td>SYS-02 Grounding</td><td>Misreading the task, inventing facts</td><td>Restate the task. Cite a source for every fact. Say "unknown".</td></tr>
+<tr><td>SYS-03 Evidence</td><td>Saying a check ran when it didn't</td><td>No claim without evidence beside it. Test the test.</td></tr>
+<tr><td>SYS-04 Proof</td><td>Believing a result that wasn't real</td><td>Set the bar before you look. Test against a control.</td></tr>
+<tr><td>SYS-05 Messages</td><td>A message between agents becoming an order</td><td>A peer's message is a request. Only the human directs.</td></tr>
+<tr><td>SYS-06 Run log</td><td>A long run dying silently on one failure</td><td>Never stop the run, always leave a record.</td></tr>
+</table></div>
+<p>A few of these are enforced in code: git hooks refuse destructive pushes, and a check compares what an agent says it ran with what it actually ran. The rest are rules every agent reads at the start of a session.</p>
+
+<h2>Failures that shaped the rules</h2>
+<div class="tbl"><table>
+<tr><th>What went wrong</th><th>The rule it produced</th></tr>
+<tr><td>Builders ran in parallel worktrees. One ran <code>git stash pop</code> and got another builder's unfinished work, because the stash is shared across worktrees.</td><td>Never use <code>git stash</code> with more than one worktree. Set work aside with a WIP commit.</td></tr>
+<tr><td>A backend's docs said a feature was deployed. Production answered 404.</td><td>A feature counts as live only with a live call as evidence.</td></tr>
+<tr><td>New routes answered 401 and looked "deployed, just needs auth". A made-up path also answered 401.</td><td>Probe with a made-up path as a control. A status code means nothing without one.</td></tr>
+<tr><td>A note said "there's no API for this", so work was parked. The API docs listed ten routes for it.</td><td>A blocker needs the same evidence as a DONE.</td></tr>
+<tr><td>An agent re-applied an old commit and quietly undid newer work.</td><td>After resolving a conflict, read the diff for lines you didn't mean to change.</td></tr>
+<tr><td>A long run died on one failed step, and the reason died with it.</td><td>Never stop the run. Record every failure where both agent and human can find it.</td></tr>
+</table></div>
+
+<h2>How this compares</h2>
+<p>Running many agents on one repo is a busy field in 2026, and the coordination layer is common. What I'd point to here is evidence built into the workflow, proof before trust, and principles that don't depend on any tool.</p>
+<div class="tbl"><table>
+<tr><th>Tool</th><th>What it does</th><th>What I'd borrow</th></tr>
+<tr><td><a href="https://github.com/Dicklesworthstone/mcp_agent_mail_rust">MCP Agent Mail</a></td><td>Identities, inboxes, threaded messages and file leases for coding agents, backed by git</td><td>Claims that expire on their own; an inbox the human can watch</td></tr>
+<tr><td><a href="https://github.com/amittell/coord">coord</a></td><td>Shared file and module claims, checked by a pre-push hook</td><td>An ownership file, so claims are checked by code</td></tr>
+<tr><td><a href="https://github.com/steveyegge/beads">Beads</a></td><td>A git-backed issue graph as long-term memory for agents</td><td>Collision-free IDs; task dependencies; compacting old work</td></tr>
+<tr><td><a href="https://pkg.go.dev/github.com/steveyegge/gastown">Gas Town</a></td><td>An orchestrator for 20 to 30 agents with fixed roles</td><td>One merge point; one watcher for stuck agents</td></tr>
+</table></div>
+<p style="font-family:var(--ui);font-size:13.5px;color:var(--muted)">As of 22 November 2026, from each project's published docs.</p>
+
+<h2>If you keep only five</h2>
+<p>Thirty-odd principles are too many to adopt at once. Start with the one that answers the mistake you make most often, and add more when a real failure calls for it. That is how these were written: one failure at a time. None of them are really about AI. They're what you'd want from any good teammate; agents just break them faster.</p>
+
+<div class="end">Written by Joseph Taiwo Bamisaye. First published 22 November 2026. &copy; 2026 Joseph Taiwo Bamisaye. Share it freely with credit and a link back.</div>
+</div></body></html>

@@ -263,7 +263,7 @@
       title: 'The Proof Machine',
       demo: 'https://joethesaint.github.io/proof-machine/',
       github: '#',
-      desc: 'A research pipeline that tests trading ideas against eight evidence gates, drawn as a working 3D machine: a reveal film, exploded view, section cut and real results riding the line. 38 ideas in, 0 out.',
+      desc: 'A research pipeline that tests every trading idea until it breaks, drawn as a working 3D machine: a reveal film, exploded view, section cut and real results riding the line. 38 ideas in, 0 out.',
       tags: ['Three.js', 'Quant research', 'Python']
     },
     {

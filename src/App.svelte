@@ -661,7 +661,8 @@
       <span class="hero-subtitle">SYSTEM.STATUS = "ACTIVE"</span>
       <h1 class="hero-title">Joseph Taiwo <span class="accent">Bamisaye</span></h1>
       <p class="hero-desc">
-        Confident and results-driven Software Engineer with a Bachelor’s degree in Agricultural and Environmental Engineering. Specialized in sustainable development, green energy, and environmental innovation. Passionate about merging agricultural and environmental engineering with software engineering to create solutions that address the spectrum of sustainability challenges.
+        Software engineer who builds the systems other work runs on: data pipelines at a quantitative firm, a workflow that runs a team of AI coding agents on production code, and interactive 3D tools that make complex machines readable.
+        Trained as an engineer, so I think in systems, measure before I trust, and draw what I build.
       </p>
       
       <div class="profiles-row">

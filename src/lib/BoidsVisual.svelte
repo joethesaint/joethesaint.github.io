@@ -280,12 +280,14 @@
 <div bind:this={container} class="boids-canvas-container"></div>
 
 <style>
+  /* Full screen width behind the hero text, not just the text column. */
   .boids-canvas-container {
-    width: 100%;
+    width: 100vw;
     height: 100%;
     position: absolute;
     top: 0;
-    left: 0;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 0;
     pointer-events: none;
     opacity: 0.65;

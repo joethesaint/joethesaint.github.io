@@ -34,6 +34,12 @@
   scroll-behavior: smooth;
 }
 
+/* The hero boids span 100vw, which includes the scrollbar; clip (not hidden) stops sideways
+   scrolling without making a scroll container. */
+html {
+  overflow-x: clip;
+}
+
 body {
   background-color: var(--bg-primary);
   color: var(--text-main);

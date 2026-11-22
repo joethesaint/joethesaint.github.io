@@ -109,8 +109,16 @@
 
   // Toast notifications state
   let toast = { show: false, message: '', type: 'success' };
+  // One link per project card: the live demo when there is one (each demo links back to its
+  // source), otherwise GitHub, otherwise nothing.
+  function projectLink(p) {
+    if (p.demo) return { href: p.demo, label: '[LIVE DEMO →]' };
+    if (p.github && p.github !== '#') return { href: p.github, label: '[GITHUB →]' };
+    return null;
+  }
+
   let toastTimeout;
-  
+
   function showToast(message, type = 'success') {
     if (toastTimeout) clearTimeout(toastTimeout);
     toast = { show: true, message, type };
@@ -302,6 +310,7 @@
     {
       title: 'SaveMyLinks',
       github: 'https://github.com/joethesaint/savemylinks',
+      demo: 'https://joethesaint.github.io/savemylinks/',
       desc: 'An open source website bookmark manager tool designed to save, organize, and categorize web links efficiently with a clean and simple interface.',
       tags: ['HTML', 'CSS', 'JavaScript']
     },
@@ -655,7 +664,7 @@
   <div class="page-fade-in">
   
   <!-- Hero / Summary Section -->
-  <section id="summary" class="hero-section" style="position: relative; overflow: hidden;">
+  <section id="summary" class="hero-section" style="position: relative;">
     {#await import('./lib/BoidsVisual.svelte') then module}<module.default {isLightTheme} />{/await}
     <div class="hero-content">
       <span class="hero-subtitle">SYSTEM.STATUS = "ACTIVE"</span>
@@ -825,11 +834,8 @@
           <div>
             <div class="project-links" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
               <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">[PROJECT]</span>
-              {#if project.github && project.github !== '#'}
-                <a href={project.github} target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[GITHUB &rarr;]</a>
-              {/if}
-              {#if project.demo}
-                <a href={project.demo} target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[LIVE DEMO &rarr;]</a>
+              {#if projectLink(project)}
+                <a href={projectLink(project).href} target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">{projectLink(project).label}</a>
               {/if}
             </div>
             <h3 style="font-size: 1.15rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--text-main);">{project.title}</h3>
@@ -1172,11 +1178,8 @@
               <div>
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
                   <span style="font-size: 0.8rem; font-weight: bold; color: var(--accent-green);">[PROJECT]</span>
-                  {#if project.github && project.github !== '#'}
-                    <a href={project.github} target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[GITHUB &rarr;]</a>
-                  {/if}
-                  {#if project.demo}
-                    <a href={project.demo} target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">[LIVE DEMO &rarr;]</a>
+                  {#if projectLink(project)}
+                    <a href={projectLink(project).href} target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem;">{projectLink(project).label}</a>
                   {/if}
                 </div>
                 <h3 style="font-size: 1.15rem; font-weight: bold; margin-bottom: 0.75rem; color: var(--text-main);">{project.title}</h3>

@@ -270,8 +270,9 @@
     },
     {
       title: 'Project GLASS (AGORA)',
+      demo: 'https://joethesaint.github.io/AGORA-glass/',
       github: 'https://github.com/joethesaint/AGORA-glass',
-      desc: 'Two-week hackathon build by a team of four (I led the Python agent): a liquidation-safety copilot for perpetual-futures traders. The agent watches positions, caps leverage at 5x, rescues margin and writes a hashed reason for every move, meant to be pinned on Circle\'s Arc network. Runs end to end on simulated positions.',
+      desc: 'Two-week hackathon build by a team of four (I led the Python agent): a liquidation-safety copilot for perpetual-futures traders. The agent watches positions, caps leverage at 5x, rescues margin and writes a hashed reason for every move, meant to be pinned on Circle\'s Arc network. The live demo replays a recorded run on simulated positions.',
       tags: ['Python', 'React', 'Circle', 'Arc']
     },
     {
@@ -294,10 +295,10 @@
       tags: ['C', 'UNIX', 'Processes']
     },
     {
-      title: 'Restaurant Recs & Review',
-      github: '#',
-      desc: 'A database-driven recommendation tool that leverages insights from user reviews, food bloggers, and local dining metrics to provide recommendations.',
-      tags: ['Django', 'Python', 'PostgreSQL', 'Caching']
+      title: 'Restaurant Review Site',
+      github: 'https://github.com/joethesaint/Portfolio_Project',
+      desc: 'ALX pair project: a restaurant guide built on reviews and ratings from users and food bloggers, with search by location and cuisine, review voting and user follows.',
+      tags: ['Python', 'Flask', 'SQLAlchemy', 'JavaScript']
     }
   ];
 
@@ -728,14 +729,14 @@
       <div class="exp-item">
         <div class="exp-header">
           <div>
-            <h3 class="exp-role">Programmer</h3>
-            <div class="exp-company">Self-Employed</div>
+            <h3 class="exp-role">Independent Builder</h3>
+            <div class="exp-company">Own projects</div>
           </div>
           <span class="exp-duration">December 2019 - Present</span>
         </div>
         <ul class="exp-desc">
-          <li>Pursued self-learning to expand knowledge and skills in software engineering, continuously exploring new technologies and industry trends.</li>
-          <li>Engaged in personal projects to deepen expertise and showcase a strong passion for programming.</li>
+          <li>Built AsciiGen, a browser engine that turns images and 3D models into live ASCII art or a GPU particle cloud, tuned to each visitor's hardware.</li>
+          <li>Built the Proof Machine, a research pipeline that tests trading ideas until they break, shown as an interactive 3D machine.</li>
         </ul>
       </div>
 
@@ -935,11 +936,19 @@
       <div class="glass-card">
         <h3 style="font-size: 1.1rem; margin-bottom: 1.5rem; color: var(--accent-green)">Education</h3>
         <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
+          <div aria-hidden="true" style="width: 48px; height: 48px; flex-shrink: 0; border-radius: 4px; border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--accent-green);">WQU</div>
+          <div>
+            <div style="font-weight: 700;">WorldQuant University</div>
+            <div style="font-size: 0.85rem; color: var(--accent-green);">MSc Financial Engineering</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">In progress</div>
+          </div>
+        </div>
+        <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
           <img src={futaLogo} alt="FUTA Logo" style="width: 48px; height: 48px; border-radius: 4px; border: 1px solid var(--card-border); object-fit: cover;" />
           <div>
             <div style="font-weight: 700;">Federal University of Technology, Akure</div>
             <div style="font-size: 0.85rem; color: var(--accent-green);">B.Eng. Agricultural & Environmental Engineering</div>
-            <div style="font-size: 0.8rem; color: var(--text-muted);">2018 - 2023 | 3.99 CGPA</div>
+            <div style="font-size: 0.8rem; color: var(--text-muted);">2018 - 2023 | CGPA 3.99 / 5.00</div>
           </div>
         </div>
         <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">

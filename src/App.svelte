@@ -27,6 +27,8 @@
   let mobileMenuOpen = false;
   let isMobile = false;
   let projectsExpanded = false;
+  // Cards shown before "see more", on every screen size
+  const PROJECTS_SHOWN = 5;
 
   // Mobile accordion state: which content section (besides the hero) is expanded.
   // null = all collapsed, headers only. Desktop ignores this and always shows everything.
@@ -36,9 +38,6 @@
     if (!isMobile) return;
     const isOpening = expandedSection !== sectionId;
     expandedSection = isOpening ? sectionId : null;
-    if (sectionId === 'projects' && isOpening) {
-      projectsExpanded = true;
-    }
   }
 
   function handleResize() {
@@ -824,7 +823,7 @@
     </div>
 
     <div id="projects-grid" class="grid-3">
-      {#each projects.slice(0, projectsExpanded ? projects.length : 3) as project (project.title)}
+      {#each projects.slice(0, projectsExpanded ? projects.length : PROJECTS_SHOWN) as project (project.title)}
         <div class="glass-card portfolio-card">
           <div>
             <div class="project-links" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px dashed var(--card-border); padding-bottom: 0.5rem;">
@@ -845,7 +844,7 @@
       {/each}
     </div>
 
-    {#if projects.length > 3}
+    {#if projects.length > PROJECTS_SHOWN}
       <div style="text-align: center; margin-top: 3rem;">
         <button class="btn btn-secondary" on:click={() => projectsExpanded = !projectsExpanded} aria-expanded={projectsExpanded} aria-controls="projects-grid">
           {projectsExpanded ? '[SHOW_FEWER_PROJECTS ↑]' : '[SEE_MORE_PROJECTS ↓]'}

@@ -215,33 +215,6 @@
       description: 'An analysis of Ralph Vince & Qiji Zhu\'s paper. We show how finite time horizons scale position sizes down from Kelly f* to inflection point f_I^Q. Includes an interactive math sandbox solver.',
       date: 'July 2026',
       link: '#blog-interactive'
-    },
-    {
-      id: 2,
-      type: 'medium',
-      platform: 'Medium',
-      title: 'Creating a Restaurant Review & Recommendation Application',
-      description: 'A personal journey detailing the database structures, caching, and performance metrics behind recommendation engines.',
-      date: 'March 15, 2023',
-      link: '#'
-    },
-    {
-      id: 3,
-      type: 'linkedin',
-      platform: 'LinkedIn',
-      title: 'Ethics in the Age of Generative AI',
-      description: 'Exploring accountability, transparency, and clinical/enterprise safety guardrails when leveraging large language models.',
-      date: 'November 2023',
-      link: '#'
-    },
-    {
-      id: 4,
-      type: 'substack',
-      platform: 'Substack',
-      title: 'Sustainable Engineering & Modern Software Architectures',
-      description: 'Bridging the gap between Agricultural/Environmental sciences and scalable web applications. Why green computing matters for scalability.',
-      date: 'January 2024',
-      link: '#'
     }
   ];
 
@@ -298,7 +271,7 @@
     {
       title: 'Project GLASS (AGORA)',
       github: 'https://github.com/joethesaint/AGORA-glass',
-      desc: 'Hackathon build for Canteen × Circle: an autonomous liquidation-safety copilot for perpetual-futures traders. A Python agent caps leverage at 5x and dispatches margin rescues via Circle wallets, with every decision hashed to the Arc network as a reasoning trace.',
+      desc: 'Two-week hackathon build by a team of four (I led the Python agent): a liquidation-safety copilot for perpetual-futures traders. The agent watches positions, caps leverage at 5x, rescues margin and writes a hashed reason for every move, meant to be pinned on Circle\'s Arc network. Runs end to end on simulated positions.',
       tags: ['Python', 'React', 'Circle', 'Arc']
     },
     {
@@ -572,7 +545,6 @@
     <link rel="canonical" href="https://joethesaint.github.io/#projects" />
   {:else}
     <title>Joseph Taiwo Bamisaye | Software Engineer &amp; Quantitative Analyst</title>
-    <meta name="description" content="Explore the portfolio of Joseph Taiwo Bamisaye — Software Engineer specializing in backend systems, quantitative analysis, portfolio optimization, and scalable web architectures." />
     <link rel="canonical" href="https://joethesaint.github.io/" />
   {/if}
 </svelte:head>
@@ -593,7 +565,7 @@
             <li><a href="#summary" class:active={activeSection === 'summary' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'summary')}>Info</a></li>
             <li><a href="#experience" class:active={activeSection === 'experience' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'experience')}>Exp</a></li>
             <li><a href="#projects" class:active={activeSection === 'projects' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'projects')}>Projects</a></li>
-            <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>Publications</a></li>
+            <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>Research</a></li>
             <li><a href="#skills" class:active={activeSection === 'skills' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'skills')}>Skills</a></li>
             <li><a href="#contact" class:active={activeSection === 'contact' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'contact')}>Contact</a></li>
           </ul>
@@ -637,7 +609,7 @@
       <li><a href="#summary" class:active={activeSection === 'summary' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'summary')}>[INFO]</a></li>
       <li><a href="#experience" class:active={activeSection === 'experience' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'experience')}>[EXPERIENCE]</a></li>
       <li><a href="#projects" class:active={activeSection === 'projects' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'projects')}>[PROJECTS]</a></li>
-      <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>[PUBLICATIONS]</a></li>
+      <li><a href="#blog" class:active={activeSection === 'blog' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'blog')}>[RESEARCH]</a></li>
       <li><a href="#skills" class:active={activeSection === 'skills' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'skills')}>[SKILLS]</a></li>
       <li><a href="#contact" class:active={activeSection === 'contact' && currentPage === 'home'} on:click={(e) => handleNavClick(e, 'contact')}>[CONTACT]</a></li>
     </ul>
@@ -855,11 +827,11 @@
     </div>
   </section>
 
-  <!-- Publications / Case Study Section (Vince/Zhu Inflection Point Solver) -->
+  <!-- Research / Case Study Section (Vince/Zhu Inflection Point Solver) -->
   <section id="blog">
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div class="section-header" class:accordion-toggle={isMobile} on:click={() => toggleSection('blog')} on:keydown={(e) => e.key === 'Enter' && toggleSection('blog')} role={isMobile ? 'button' : null} tabindex={isMobile ? 0 : null} aria-expanded={isMobile ? expandedSection === 'blog' : null}>
-      <h2 class="section-title">Publications & Research</h2>
+      <h2 class="section-title">Research</h2>
       {#if isMobile}<span class="accordion-chevron" class:open={expandedSection === 'blog'}>&darr;</span>{/if}
     </div>
 
@@ -867,7 +839,7 @@
     <div class="accordion-inner">
 
     <!-- Articles Grid -->
-    <div class="grid-2" style="margin-bottom: 3rem;">
+    <div class={articles.length > 1 ? 'grid-2' : ''} style="margin-bottom: 3rem;">
       {#each articles as article (article.id)}
         <div class="glass-card portfolio-card">
           <div>
@@ -923,7 +895,11 @@
           <div class="skill-tags">
             <span class="skill-tag">Python</span>
             <span class="skill-tag">JavaScript</span>
+            <span class="skill-tag">TypeScript</span>
             <span class="skill-tag">C</span>
+            <span class="skill-tag">Svelte</span>
+            <span class="skill-tag">React</span>
+            <span class="skill-tag">Three.js / WebGL</span>
             <span class="skill-tag">Django</span>
             <span class="skill-tag">Flask</span>
             <span class="skill-tag">PostgreSQL</span>
@@ -935,6 +911,7 @@
             <span class="skill-tag">SciPy</span>
             <span class="skill-tag">Azure Cloud</span>
             <span class="skill-tag">Linux</span>
+            <span class="skill-tag">Git</span>
             <span class="skill-tag">CI/CD Pipelines</span>
           </div>
         </div>
@@ -944,6 +921,8 @@
           <div class="skill-tags">
             <span class="skill-tag">Quantitative Research</span>
             <span class="skill-tag">Data Infrastructure</span>
+            <span class="skill-tag">AI Agent Workflows</span>
+            <span class="skill-tag">Systems Design</span>
             <span class="skill-tag">Distributed Systems</span>
             <span class="skill-tag">Teamwork</span>
             <span class="skill-tag">Pair Programming</span>
@@ -964,7 +943,7 @@
           </div>
         </div>
         <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
-          <img src={holbertonLogo} alt="Holberton Logo" style="width: 48px; height: 48px; border-radius: 4px; border: 1px solid var(--card-border); object-fit: cover;" />
+          <img src={holbertonLogo} alt="Holberton Logo" style="width: 48px; height: 48px; border-radius: 4px; border: 1px solid var(--card-border); object-fit: contain; background: #fff; padding: 4px;" />
           <div>
             <div style="font-weight: 700;">Holberton School</div>
             <div style="font-size: 0.85rem; color: var(--accent-green);">Software Engineering Curriculum</div>

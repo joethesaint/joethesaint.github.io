@@ -60,12 +60,7 @@
         visitorCount = data.count || data.value || null;
       }
     } catch (_err) {
-      // Use the local fallback when the counter service is unavailable.
-    }
-    if (!visitorCount) {
-      const stored = parseInt(localStorage.getItem('jdb_pv_count') || '1428', 10) + 1;
-      localStorage.setItem('jdb_pv_count', String(stored));
-      visitorCount = stored;
+      // Counter service unavailable: hide the badge rather than show a made-up number.
     }
     visitorLoading = false;
   }
@@ -1210,15 +1205,17 @@
   <div class="container">
     <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem;">
       <p style="margin: 0;">&copy; {new Date().getFullYear()} JOSEPH TAIWO BAMISAYE. Built with Svelte &amp; Vite.</p>
+      {#if visitorLoading || visitorCount}
       <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--bg-secondary); border: 1px solid var(--card-border); padding: 0.35rem 0.85rem; border-radius: 4px; font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-green);">
         <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-green); box-shadow: 0 0 8px var(--accent-green);"></span>
-        <span style="color: var(--text-muted); font-size: 0.75rem;">LIVE VISITORS:</span>
+        <span style="color: var(--text-muted); font-size: 0.75rem;">VISITS:</span>
         {#if visitorLoading}
           <span style="opacity: 0.6;">[COUNTING...]</span>
         {:else}
-          <strong style="color: var(--text-main); font-weight: 700;">{visitorCount ? visitorCount.toLocaleString() : '1,428'}</strong>
+          <strong style="color: var(--text-main); font-weight: 700;">{visitorCount.toLocaleString()}</strong>
         {/if}
       </div>
+      {/if}
       <div class="footer-meta" style="margin: 0;">
         <a href="mailto:joebamisaye068@gmail.com">joebamisaye068@gmail.com</a>
         <span>EMEA / Remote</span>

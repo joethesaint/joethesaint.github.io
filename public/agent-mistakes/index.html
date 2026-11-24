@@ -1,0 +1,84 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What my AI agents keep getting wrong</title>
+<meta name="description" content="I had a system read back four months of my AI coding agents' work across 29 projects. 1,019 mistakes, 70 risky actions stopped only by a safety net, 226 needless pauses, and three lessons.">
+<meta name="author" content="Joseph Taiwo Bamisaye">
+<link rel="canonical" href="https://joethesaint.github.io/agent-mistakes/">
+<meta property="og:type" content="article">
+<meta property="og:title" content="What my AI agents keep getting wrong">
+<meta property="og:description" content="Four months of their work, read back across 29 projects: what went wrong, and three lessons.">
+<meta property="og:url" content="https://joethesaint.github.io/agent-mistakes/">
+<meta property="og:image" content="https://joethesaint.github.io/agent-mistakes/og.png">
+<meta property="article:published_time" content="2026-11-24">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{--bg:#f6f5f1;--panel:#fffefb;--fg:#23221f;--muted:#6b6860;--line:#d9d6cc;--accent:#b4462b;--sans:"Iowan Old Style","Palatino Linotype",Georgia,serif;--ui:system-ui,"Segoe UI",sans-serif;--mono:ui-monospace,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root{--bg:#14140f;--panel:#1b1b16;--fg:#e9e6dc;--muted:#a19d90;--line:#36342c;--accent:#e08a6e}}
+body{margin:0;background:var(--bg);color:var(--fg);font:17px/1.65 var(--sans)}
+.page{max-width:60rem;margin:0 auto;padding:28px max(16px,env(safe-area-inset-left)) 56px}
+h1{font-weight:400;font-size:38px;line-height:1.15;margin:0;letter-spacing:.01em}
+h2{font-weight:400;font-size:24px;margin:44px 0 10px}
+nav{font:12px/1.4 var(--mono);margin:0 0 12px}
+.sub{color:var(--muted);font-family:var(--ui);font-size:15px;margin:8px 0 22px;max-width:70ch}
+a{color:var(--accent)}
+figure{margin:0;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:16px;overflow-x:auto}
+figure svg{display:block;width:100%;min-width:44rem;height:auto;color:var(--fg)}
+figcaption{font-family:var(--ui);font-size:13.5px;color:var(--muted);margin-top:10px;max-width:80ch}
+.key{display:grid;gap:12px;margin:22px 0 0;padding:0;list-style:none;font-family:var(--ui);font-size:16px}
+.key li{display:grid;grid-template-columns:2rem 1fr;gap:10px;align-items:start}.key b{font-weight:600}
+.num{display:inline-flex;width:1.5rem;height:1.5rem;border:1px solid var(--fg);border-radius:50%;align-items:center;justify-content:center;font-size:12px;font-family:var(--mono)}
+.num.a{border-color:var(--accent);color:var(--accent)}
+p,ul{max-width:70ch}
+li{margin:4px 0}
+.tbl{overflow-x:auto;margin:12px 0}
+table{border-collapse:collapse;font-family:var(--ui);font-size:14.5px;line-height:1.45;min-width:40rem;width:100%}
+th,td{text-align:left;vertical-align:top;padding:9px 12px;border-bottom:1px solid var(--line)}
+th{font-weight:600;color:var(--muted);font-size:13px}
+code{font-family:var(--mono);font-size:.88em}
+.end{margin-top:48px;padding-top:16px;border-top:1px solid var(--line);font-family:var(--ui);font-size:13.5px;color:var(--muted)}
+.stats{display:grid;gap:0;margin:22px 0 0;padding:0;list-style:none;font-family:var(--ui);background:var(--panel);border:1px solid var(--line);border-radius:4px}
+.stats li{display:grid;grid-template-columns:9rem 1fr;gap:16px;align-items:baseline;padding:16px 18px;border-bottom:1px solid var(--line)}
+.stats li:last-child{border-bottom:0}
+.stats .n{font:400 40px/1 var(--sans)}
+.stats .n.a{color:var(--accent)}
+.stats small{display:block;color:var(--muted);font:13px/1.5 var(--mono);margin-top:4px}
+@media (max-width:520px){.stats li{grid-template-columns:1fr}}
+</style></head><body><div class="page">
+<nav><a href="/">joethesaint.github.io</a> &middot; <a href="/coexistence-machine/">The coexistence machine</a></nav>
+<h1>What my AI agents keep getting wrong</h1>
+<p class="sub">Four months of their work, read back across 29 projects. The system proposes rules from what it finds; I decide which ones stay.</p>
+
+<p>Last week I shared <a href="/coexistence-machine/">the five rules I use to run a team of AI coding agents</a>. This week I asked the agents a harder question: what do you keep getting wrong?</p>
+<p>I had a system read back through four months of their work: every failed command, every blocked action, every correction I had to make.</p>
+
+<h2>What it found</h2>
+<ul class="stats">
+<li><span class="n">1,019</span><span><b>mistakes</b>, most of them small and repeated<small>the same failure twice is the mistake</small></span></li>
+<li><span class="n a">70</span><span><b>risky actions</b> tried without asking, stopped only by a safety net<small>a block is evidence the agent should have asked</small></span></li>
+<li><span class="n">226</span><span><b>needless pauses</b> for my approval, caused by how a command was written, not because it was risky<small>none since 28 October</small></span></li>
+</ul>
+
+<h2>Three lessons</h2>
+<ol class="key">
+<li><span class="num">1</span><span><b>The same failure twice is the mistake.</b> A failing test while you build is just the work. The one worth fixing is the one that comes back.</span></li>
+<li><span class="num a">2</span><span><b>A safety-net block isn't friction to route around.</b> It's evidence the agent should have asked first.</span></li>
+<li><span class="num">3</span><span><b>A rule nobody measures is only a reminder.</b> About 1 in 5 of my rules can be checked by code. Knowing which ones matters.</span></li>
+</ol>
+
+<h2>Who decides</h2>
+<p>The system proposes rules from what it finds. I decide which ones stay.</p>
+
+<h2>Your turn</h2>
+<p>How do you find out what your agents keep getting wrong?</p>
+
+<div class="end">Written by Joseph Taiwo Bamisaye. First published 24 November 2026. &copy; 2026 Joseph Taiwo Bamisaye. Share it freely with credit and a link back.</div>
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-84JYKC0E9N"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      window.gtag = gtag;
+      gtag('js', new Date());
+      gtag('config', 'G-84JYKC0E9N');
+    </script>
+</div>    <script data-goatcounter="https://joethesaint.goatcounter.com/count" async src="/js/stats.js"></script>
+</body></html>

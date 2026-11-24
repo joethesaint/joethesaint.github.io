@@ -1,6 +1,8 @@
 <script>
   import { onMount } from 'svelte';
   import futaLogo from './assets/futa_logo.png';
+  // Medium and Substack posts, refreshed at build time by scripts/fetch-articles.mjs
+  import feedArticles from './data/articles.generated.json';
   import holbertonLogo from './assets/holberton_logo.svg';
 
   // Plotly is only needed for the interactive sandbox chart, so it's loaded
@@ -215,7 +217,16 @@
       description: 'An analysis of Ralph Vince & Qiji Zhu\'s paper. We show how finite time horizons scale position sizes down from Kelly f* to inflection point f_I^Q. Includes an interactive math sandbox solver.',
       date: 'July 2026',
       link: '#blog-interactive'
-    }
+    },
+    ...feedArticles.map((a, i) => ({
+      id: 100 + i,
+      type: a.platform.toLowerCase(),
+      platform: a.platform,
+      title: a.title,
+      description: a.description,
+      date: a.date ? new Date(a.date + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' }) : '',
+      link: a.link
+    }))
   ];
 
   const projects = [
@@ -867,7 +878,7 @@
               [READ_CASE_STUDY &rarr;]
             </button>
           {:else}
-            <a href={article.link} class="proj-link" style="font-size: 0.8rem; margin-top: auto;">
+            <a href={article.link} target="_blank" rel="noreferrer" class="proj-link" style="font-size: 0.8rem; margin-top: auto;">
               [READ_ON_PLATFORM &rarr;]
             </a>
           {/if}

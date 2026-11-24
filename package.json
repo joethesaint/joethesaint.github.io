@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "fetch:articles": "node scripts/fetch-articles.mjs",
+    "test:articles": "node --test tests/fetch-articles.test.mjs",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./jsconfig.json",
     "lint": "eslint .",

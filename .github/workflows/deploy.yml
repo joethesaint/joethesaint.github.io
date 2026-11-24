@@ -5,6 +5,10 @@ on:
     branches:
       - main
       - master
+  # Once a day, so new Medium and Substack posts reach the Research section
+  schedule:
+    - cron: '17 5 * * *'
+  workflow_dispatch:
 
 concurrency:
   group: pages-${{ github.ref }}
@@ -37,6 +41,12 @@ jobs:
 
       - name: Lint 🔎
         run: npm run lint
+
+      - name: Article feed checks
+        run: npm run test:articles
+
+      - name: Fetch Medium and Substack posts
+        run: npm run fetch:articles
 
       - name: Build 🏗️
         run: npm run build

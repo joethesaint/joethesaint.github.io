@@ -1,7 +1,6 @@
 <script>
   import { onMount } from 'svelte';
   import futaLogo from './assets/futa_logo.png';
-  import holbertonLogo from './assets/holberton_logo.svg';
 
   // Plotly is only needed for the interactive sandbox chart, so it's loaded
   // on demand rather than blocking initial page load with a multi-MB CDN script.
@@ -27,6 +26,8 @@
   let mobileMenuOpen = false;
   let isMobile = false;
   let projectsExpanded = false;
+  // WQU logo is loaded from wqu.edu; fall back to a text badge if it fails
+  let wquLogoOk = true;
   // Cards shown before "see more", on every screen size
   const PROJECTS_SHOWN = 5;
 
@@ -936,7 +937,11 @@
       <div class="glass-card">
         <h3 style="font-size: 1.1rem; margin-bottom: 1.5rem; color: var(--accent-green)">Education</h3>
         <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
-          <div aria-hidden="true" style="width: 48px; height: 48px; flex-shrink: 0; border-radius: 4px; border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--accent-green);">WQU</div>
+          {#if wquLogoOk}
+            <img src="https://www.wqu.edu/themes/custom/wqu/images/logos/wqu-logo.svg" alt="WorldQuant University Logo" on:error={() => (wquLogoOk = false)} style="width: 48px; height: 48px; flex-shrink: 0; border-radius: 4px; border: 1px solid var(--card-border); object-fit: contain; background: #fff; padding: 4px;" />
+          {:else}
+            <div aria-hidden="true" style="width: 48px; height: 48px; flex-shrink: 0; border-radius: 4px; border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--accent-green);">WQU</div>
+          {/if}
           <div>
             <div style="font-weight: 700;">WorldQuant University</div>
             <div style="font-size: 0.85rem; color: var(--accent-green);">MSc Financial Engineering</div>
@@ -952,10 +957,10 @@
           </div>
         </div>
         <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
-          <img src={holbertonLogo} alt="Holberton Logo" style="width: 48px; height: 48px; border-radius: 4px; border: 1px solid var(--card-border); object-fit: contain; background: #fff; padding: 4px;" />
+          <div aria-hidden="true" style="width: 48px; height: 48px; flex-shrink: 0; border-radius: 4px; border: 1px solid var(--card-border); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; color: var(--accent-green);">ALX</div>
           <div>
-            <div style="font-weight: 700;">Holberton School</div>
-            <div style="font-size: 0.85rem; color: var(--accent-green);">Software Engineering Curriculum</div>
+            <div style="font-weight: 700;">ALX School</div>
+            <div style="font-size: 0.85rem; color: var(--accent-green);">Software Engineering Programme (Holberton School curriculum)</div>
             <div style="font-size: 0.8rem; color: var(--text-muted);">2022 - 2023</div>
           </div>
         </div>

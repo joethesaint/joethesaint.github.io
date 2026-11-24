@@ -291,8 +291,8 @@
       title: 'SaveMyLinks',
       github: 'https://github.com/joethesaint/savemylinks',
       demo: 'https://joethesaint.github.io/savemylinks/',
-      desc: 'An open source website bookmark manager tool designed to save, organize, and categorize web links efficiently with a clean and simple interface.',
-      tags: ['HTML', 'CSS', 'JavaScript']
+      desc: 'A link library you own: a native app for Windows, macOS and Linux (one file on your computer), a browser extension that saves the page in one click, and a phone install with Share-to-save. Keyboard-first, with every pull request reviewed and demoed before it merges.',
+      tags: ['Rust', 'Python', 'Browser extension', 'PWA']
     },
     {
       title: 'Monty Interpreter',
